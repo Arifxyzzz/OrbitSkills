@@ -1,0 +1,57 @@
+name: OrbitSkills
+version: '1.2.0'
+main: id.shadowyn.level.ShadowynLevelPlugin
+api-version: '1.21'
+author: Shadowyn Studio
+website: https://www.shadowyn.id
+softdepend:
+  - PlaceholderAPI
+  - Vault
+commands:
+  orbitskills:
+    description: Main OrbitSkills command and menu shortcuts.
+    usage: /orbitskills
+    aliases: [os, orbit, oskills, shadowynlevel, slv, slc, slevel]
+  level:
+    description: Open the level rewards menu.
+    usage: /level
+  stats:
+    description: Open your stat profile menu or private chat profile.
+    usage: /stats [profile]
+  skills:
+    description: Open your stat profile menu.
+    usage: /skills
+  clan:
+    description: Show your clan.
+    usage: /clan
+  race:
+    description: Show or reroll your race.
+    usage: /race
+  profile:
+    description: Show a player stat profile.
+    usage: /profile [player]
+  resetdata:
+    description: Reset OrbitSkills player data.
+    usage: /resetdata <player>
+permissions:
+  orbitskills.admin:
+    default: op
+  shadowyn.admin:
+    default: op
+  orbitskills.use:
+    default: true
+  shadowynlevel.use:
+    default: true
+  orbitskills.multiplier.2:
+    default: false
+  orbitskills.multiplier.3:
+    default: false
+  orbitskills.multiplier.4:
+    default: false
+  shadowynlevel.2:
+    default: false
+  shadowynlevel.3:
+    default: false
+  shadowynlevel.4:
+    default: false
+

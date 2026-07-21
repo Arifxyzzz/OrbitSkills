@@ -1,0 +1,110 @@
+settings:
+  # Keeps old level configs updated with new defaults.
+  # Leave this value as-is.
+  exp-balance-version: 10
+
+  # Controls how much EXP each level needs.
+  # Raise exp-multiplier for slower leveling.
+  # Raise exp-power if higher levels should become much harder.
+  exp-base: 100.0
+  exp-power: 1.537
+  exp-multiplier: 84.2
+
+  # Command used when level rewards give money.
+  # Needs an economy plugin with this command.
+  money-command: "eco give %player% %amount%"
+
+  # Lore appended to each /level reward preview.
+  # The menu replaces these values for each level.
+  default-reward-lore:
+    - "&#B8F7D4✦ SP &#F7F3FF{stats_points}"
+    - "&#C7B8FF✦ Races &#F7F3FF{race_fragments} &#6D7890| &#A7E8FFClass &#F7F3FF{class_fragments}"
+    - "&#FFD6A5✦ Clans &#F7F3FF{clan_fragments} &#6D7890| &#FFE7A3Items &#F7F3FF{items}"
+
+level-up-effects:
+  # Visual feedback when a player reaches a new level.
+  title:
+    enabled: true
+    title: "&#B8F7D4LEVEL UP"
+    subtitle: "&#F7F3FFLevel &#C7B8FF%level%"
+  sound:
+    enabled: true
+    name: "ENTITY_PLAYER_LEVELUP"
+    volume: 1.0
+    pitch: 1.2
+  firework:
+    enabled: true
+
+every-level:
+  # Rewards given on every level up.
+  # Commands are run by the server. Use %player% for the player name.
+  commands: []
+  money: 0
+
+  # Gives random fragment amounts every level.
+  # min/max apply to EACH fragment type, not the total.
+  # When enabled, early levels give fewer fragments and higher levels give more.
+  random-fragment:
+    enabled: true
+    min: 3
+    max: 25
+    scale-with-level: true
+    max-at-level: 100
+    # Fragment names must be listed in Fragments.yml.
+    types: [Races, Stats_Class, Clans]
+  items: []
+
+milestone-rewards:
+  # Extra rewards on level intervals.
+  # Commands, money, and items can be used together.
+  # Format item: ITEM_NAME:AMOUNT, for example DIAMOND:3.
+  # A number like 1000 gives the reward only at that level.
+  every-10:
+    commands: []
+    money: 250
+    items: ["RAW_GOLD:8", "LAPIS_LAZULI:12"]
+
+  every-25:
+    commands: []
+    money: 750
+    items: ["EMERALD:6", "DIAMOND:2", "GOLDEN_APPLE:1"]
+
+  every-50:
+    commands: []
+    money: 2000
+    items: ["DIAMOND:5", "GOLDEN_APPLE:2", "EXPERIENCE_BOTTLE:16"]
+
+  every-100:
+    commands: []
+    money: 5000
+    items: ["TOTEM_OF_UNDYING:1", "ANCIENT_DEBRIS:3", "ENCHANTED_GOLDEN_APPLE:1"]
+
+  every-250:
+    commands: []
+    money: 15000
+    items: ["NETHERITE_SCRAP:4", "ANCIENT_DEBRIS:6", "ENCHANTED_GOLDEN_APPLE:2"]
+
+  100:
+    commands: []
+    money: 10000
+    items: ["DIAMOND_BLOCK:1", "TOTEM_OF_UNDYING:1"]
+
+  250:
+    commands: []
+    money: 25000
+    items: ["NETHERITE_SCRAP:4", "ENCHANTED_GOLDEN_APPLE:1"]
+
+  500:
+    commands: []
+    money: 75000
+    items: ["NETHERITE_INGOT:1", "TOTEM_OF_UNDYING:2", "ENCHANTED_GOLDEN_APPLE:2"]
+
+  750:
+    commands: []
+    money: 150000
+    items: ["NETHERITE_INGOT:2", "NETHER_STAR:1", "ENCHANTED_GOLDEN_APPLE:3"]
+
+  1000:
+    commands: []
+    money: 300000
+    items: ["NETHERITE_INGOT:4", "NETHER_STAR:2", "DRAGON_EGG:1"]

@@ -1,0 +1,239 @@
+﻿# Race settings — passive skills & combat effects.
+# weight = higher = easier to get.
+# Race effects: dragon-fireball, demon-lightning, elf-fireball, fire-aspect-hit,
+#   water-breathing, haste, extra-arrows, mining-bonus-drop-chance, fishing-exp-percent.
+# Stat bonuses: damage-percent, assassin-percent, archer-percent, health-percent,
+#   defense-percent, alchemy-percent, night-damage-percent.
+
+clans:
+  HUMAN:
+    display-name: '&#E8EEF7Human'
+    rarity: COMMON
+    material: PAPER
+    custom-model-data: 15086
+    weight: 300000
+    damage-percent: 0
+    health-percent: 0
+    defense-percent: 0
+    description:
+    - Balanced starter race — no strengths, no weaknesses.
+
+  SLIME:
+    display-name: '&#8DFF7ASlime'
+    rarity: COMMON
+    material: PAPER
+    custom-model-data: 15112
+    weight: 180000
+    damage-percent: -4
+    health-percent: 8
+    defense-percent: 3
+    description:
+    - Elastic body — knockback resistant.
+    passive-skills:
+    - '&dRebound &7— bounces attackers back & reduces damage.'
+    - '&dElastic Skin &7— knockback reduced.'
+
+  GUARDIAN:
+    display-name: '&#63F29BGuardian'
+    rarity: UNCOMMON
+    material: PAPER
+    custom-model-data: 15170
+    weight: 85000
+    damage-percent: -8
+    health-percent: 10
+    defense-percent: 8
+    water-breathing: true
+    description:
+    - Ocean sentinel — tanky underwater.
+    passive-skills:
+    - '&bWater Breathing &7— infinite breath underwater.'
+    - '&dIron Scales &7— high DEF and HP.'
+
+  DWARF:
+    display-name: '&#63F29BDwarf'
+    rarity: UNCOMMON
+    material: PAPER
+    custom-model-data: 15110
+    weight: 70000
+    damage-percent: -2
+    health-percent: 8
+    defense-percent: 6
+    mining-bonus-drop-chance: 8
+    haste: true
+    description:
+    - Underground master — mining & crafting.
+    passive-skills:
+    - '&eHaste &7— permanent mining speed.'
+    - '&eOre Instinct &7— bonus ore drops.'
+    - '&dArmor Mastery &7— extra DEF when wearing armor.'
+
+  MERMAID:
+    display-name: '&#5CC8FFMermaid'
+    rarity: UNCOMMON
+    material: PAPER
+    custom-model-data: 15150
+    weight: 65000
+    damage-percent: -3
+    health-percent: 6
+    defense-percent: 2
+    alchemy-percent: 6
+    fishing-exp-percent: 20
+    water-breathing: true
+    description:
+    - Ocean healer — sustain and exploration.
+    passive-skills:
+    - '&bWater Breathing &7— infinite breath underwater.'
+    - '&aOcean Bounty &7— bonus fishing EXP.'
+    - '&dTidal Heal &7— enhanced potion power.'
+
+  ORC:
+    display-name: '&#5CC8FFOrc'
+    rarity: RARE
+    material: PAPER
+    custom-model-data: 15151
+    weight: 10000
+    damage-percent: 10
+    health-percent: 5
+    defense-percent: -4
+    orc-bleed: true
+    description:
+    - Savage warrior — high damage, low defense.
+    passive-skills:
+    - '&cBlood Fury &7— melee hits cause Wither & +5 bonus damage (5s cooldown).'
+    - '&dBerserker &7— move faster after a kill.'
+
+  ELF:
+    display-name: '&#63F29BElf'
+    rarity: RARE
+    material: PAPER
+    custom-model-data: 15132
+    weight: 8500
+    damage-percent: 2
+    health-percent: -4
+    archer-percent: 14
+    extra-arrows: 2
+    elf-explosive-arrow: true
+    description:
+    - Forest archer — precision & explosive arrows.
+    passive-skills:
+    - '&cExplosive Arrow &7— arrows explode on hit (8s cooldown).'
+    - '&eMulti-Shot &7— shoots 2 extra arrows.'
+    - '&dEagle Eye &7— high archery damage.'
+
+  TITAN:
+    display-name: '&#5CC8FFTitan'
+    rarity: RARE
+    material: PAPER
+    custom-model-data: 15097
+    weight: 8000
+    damage-percent: -8
+    health-percent: 20
+    defense-percent: 4
+    titan-thorns: true
+    description:
+    - Colossal tank — massive HP & thorns.
+    passive-skills:
+    - '&dTitan Blood &7— largest HP bonus of all races.'
+    - '&dThorns &7— reflects 15% damage back to attacker (4s cooldown).'
+
+  GOLEM:
+    display-name: '&#B8C2CCGolem'
+    rarity: RARE
+    material: PAPER
+    custom-model-data: 15089
+    weight: 7000
+    damage-percent: -10
+    health-percent: 14
+    defense-percent: 16
+    mining-bonus-drop-chance: 6
+    description:
+    - Living fortress — highest DEF.
+    passive-skills:
+    - '&dStone Skin &7— highest DEF bonus.'
+    - '&dQuake &7— melee hits slow nearby enemies.'
+    - '&eStone Memory &7— bonus mining drops.'
+
+  KITSUNE:
+    display-name: '&#FF9AD5Kitsune'
+    rarity: EPIC
+    material: PAPER
+    custom-model-data: 15100
+    weight: 1500
+    damage-percent: 4
+    health-percent: -2
+    defense-percent: 2
+    alchemy-percent: 8
+    night-damage-percent: 8
+    description:
+    - Agile spirit fox — debuff & sustain.
+    passive-skills:
+    - '&dSpirit Trick &7— marks enemy & buffs your speed.'
+    - '&dFox Step &7— reduces damage & gains speed when hit.'
+    - '&5Night Prowler &7— bonus damage at night.'
+
+  FROSTBORNE:
+    display-name: '&#A7E8FFFrostborne'
+    rarity: EPIC
+    material: PAPER
+    custom-model-data: 15095
+    weight: 1400
+    damage-percent: 3
+    health-percent: 4
+    defense-percent: 6
+    description:
+    - Ice lord — slow & control enemies.
+    passive-skills:
+    - '&bChill &7— hits slow enemies (Slowness II).'
+    - '&dFrozen Armor &7— solid DEF and HP.'
+
+  VAMPIRE:
+    display-name: '&#C77DFFVampire'
+    rarity: EPIC
+    material: PAPER
+    custom-model-data: 15099
+    weight: 1300
+    damage-percent: 8
+    health-percent: -6
+    defense-percent: -2
+    night-damage-percent: 30
+    description:
+    - Night hunter — lifesteal & speed.
+    passive-skills:
+    - '&cLifesteal &7— heal 12% of damage dealt.'
+    - '&5Night Runner &7— speed boost at night.'
+    - '&5Blood Moon &7— massive damage bonus at night.'
+
+  DRAGONKIN:
+    display-name: '&#FFB84DDragonkin'
+    rarity: MYTHIC
+    material: PAPER
+    custom-model-data: 15168
+    weight: 350
+    damage-percent: 14
+    health-percent: 12
+    defense-percent: 8
+    fire-aspect-hit: true
+    dragon-fireball: true
+    description:
+    - Dragon bloodline — fire & power.
+    passive-skills:
+    - '&cDragon Breath &7— launches fireball on melee hit (5.5s cooldown).'
+    - '&cFire Claws &7— every hit sets target on fire.'
+    - '&dDragon Scales &7— high all-around stats.'
+
+  DEMON:
+    display-name: '&#FF6B9ADemon'
+    rarity: MYTHIC
+    material: PAPER
+    custom-model-data: 15094
+    weight: 55
+    damage-percent: 30
+    health-percent: -10
+    defense-percent: -6
+    demon-lightning: true
+    description:
+    - Hellspawn — glass cannon with lightning.
+    passive-skills:
+    - '&5Hell Strike &7— lightning strikes target for &c+30 &7bonus damage & slows (6s cooldown).'
+    - '&cDemonic Power &7— highest damage bonus, but fragile.'
+    - '&dShadow Speed &7— move faster after a kill.'

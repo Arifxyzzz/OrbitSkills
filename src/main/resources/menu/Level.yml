@@ -1,0 +1,34 @@
+﻿menu:
+  id: level
+  size: 27
+  title: "Levels {page}"
+  level-slots: [1, 2, 3, 4, 5, 6, 7, 16, 15, 14, 13, 12, 11, 10]
+  progress-slot: 22
+  prev-slot: 18
+  next-slot: 26
+  items:
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 0
+      slots: ["0-26"]
+    level-item:
+      material: EXPERIENCE_BOTTLE
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#C7B8FFLv {level}"
+      lore:
+        - "&#8FA0B7{status} &#6D7890| &#8FA0B7Need &#F7F3FF{need_exp}"
+    level-progress:
+      material: EXPERIENCE_BOTTLE
+      custom-model-data: 0
+      enchantment_glint_override: true
+      priority: 1
+      name: "&#B8F7D4Progress"
+      lore:
+        - "&#C7B8FF◆ &#8FA0B7Lv &#F7F3FF{level} &#6D7890| &#8FA0B7Page &#F7F3FF{page}/{max_page}"
+        - "&#A7E8FF◆ &#8FA0B7EXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp}"
+        - "&#B8F7D4◆ &#F7F3FF{exp_percent}% &#8FA0B7to next"
+        - "&#FFE7A3◆ &#8FA0B7SP &#F7F3FF{stats_point}"

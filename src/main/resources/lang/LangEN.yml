@@ -1,0 +1,69 @@
+﻿format:
+  line:
+    text: "&#6D7890━━━━━━━━━━━━━━━━━━━━"
+    color: "&#6D7890"
+    character: "━"
+    length: 20
+
+messages:
+  prefix: "&#C7B8FFOrbitSkills &#6D7890› &#F7F3FF"
+  no-permission: "&#FFB6C8No permission."
+  level-up: "&#B8F7D4Level Up &#6D7890› &#F7F3FF%level%"
+  exp-gain: "&#B8F7D4+%exp% EXP &#6D7890( &#F7F3FF%current%&#6D7890/&#F7F3FF%needed% &#6D7890)"
+  stat-added: "&#B8F7D4+%stat%"
+  stat-maxed: "&#FFB6C8Max."
+  not-enough-points: "&#FFB6C8Not enough SP."
+  clan-rerolled: "&#C7B8FFRace &#6D7890› &#F7F3FF%clan% &#6D7890( %rarity% &#6D7890)"
+  clan-current: "&#C7B8FFClan &#6D7890› &#F7F3FF%clan%"
+  need-fragment: "&#FFB6C8Need %amount% Race Fragment."
+  need-rank-fragment: "&#FFB6C8Need %amount% Class Fragment."
+  rank-rerolled: "&#A7E8FF%stat% &#6D7890› &#F7F3FF%rank% &#6D7890( %rarity% &#6D7890)"
+  auto-reroll-busy: "&#FFB6C8Auto is running."
+  auto-reroll-start: "&#FFD6A5Auto &#6D7890› &#F7F3FF%target% &#6D7890| &#F7F3FF%max_fragments%x"
+  clan-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#C7B8FF%clan% &#6D7890( %rarity% &#6D7890)"
+  rank-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#A7E8FF%stat% &#6D7890› &#F7F3FF%rank%"
+  clan-auto-rerolled: "&#C7B8FFDone &#6D7890› &#F7F3FF%clan% &#6D7890| &#F7F3FF%attempts%x"
+  rank-auto-rerolled: "&#A7E8FFDone &#6D7890› &#F7F3FF%stat% %rank% &#6D7890| &#F7F3FF%attempts%x"
+  auto-reroll-reached: "&#B8F7D4Hit"
+  auto-reroll-limit: "&#FFB6C8Limit"
+menu:
+  words:
+    unlocked: "&#B8F7D4Open"
+    locked: "&#FFB6C8Locked"
+commands:
+  help:
+    - "&#C7B8FF/orbitskills reload &#6D7890- &#8FA0B7Reload files"
+    - "&#C7B8FF/orbitskills give fragment Races <player> <amount>"
+    - "&#C7B8FF/orbitskills give fragment Stats_Class <player> <amount>"
+    - "&#C7B8FF/orbitskills set race <player> <race>"
+    - "&#C7B8FF/orbitskills set clan <player> <clan>"
+    - "&#C7B8FF/orbitskills scanall &#6D7890- &#8FA0B7Find over/under SP"
+  reload: "&#B8F7D4Reloaded."
+  player-not-found: "&#FFB6C8Player not found."
+  invalid-number: "&#FFB6C8Invalid number."
+  invalid-stat: "&#FFB6C8Invalid stat."
+  unknown-race: "&#FFB6C8Unknown race."
+  unknown-clan: "&#FFB6C8Unknown clan."
+stats:
+  names: { archery: "Archery", fighting: "Fighting", power: "Power", defense: "Defense", health: "Health", alchemy: "Alchemy" }
+  descriptions:
+    archery: "Damage for Archery."
+    fighting: "Damage for Fighting."
+    power: "Damage for Power."
+    defense: "DEF and extra HP."
+    health: "Maximum HP."
+    alchemy: "Healing and sustain."
+chat-profile:
+  lines:
+    - "{line}"
+    - "&#C7B8FF✦ &#F7F3FF{player} &#6D7890| &#FFD6A5Lv {level_padded}"
+    - "&#A7E8FF◆ &#8FA0B7EXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp} &#6D7890( &#B8F7D4{exp_percent}% &#6D7890)"
+    - "{progress_bar}"
+    - "{line}"
+    - "&#C7B8FF◆ &#8FA0B7Race &#F7F3FF{race} &#6D7890| &#B8F7D4Clan &#F7F3FF{clan}"
+    - "&#B8F7D4◆ &#8FA0B7SP &#F7F3FF{stats_point} &#6D7890| &#8FA0B7Used &#F7F3FF{used_point}"
+    - "{line}"
+    - "&#FFB6C8◆ &#8FA0B7Damage &#F7F3FF{melee_damage} &#6D7890| &#FFE7A3Archery &#F7F3FF{projectile_damage}"
+    - "&#C7B8FF◆ &#8FA0B7Power &#F7F3FF{unarmed_damage} &#6D7890| &#A7E8FFHP &#F7F3FF{max_health}"
+    - "&#C7B8FF◆ &#8FA0B7DEF &#F7F3FF{defense} &#6D7890| &#B8F7D4Heal &#F7F3FF{potion_heal}"
+    - "{line}"

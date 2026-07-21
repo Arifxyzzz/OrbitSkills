@@ -1,0 +1,252 @@
+# Grinding EXP settings.
+# Values are the EXP players get before bonus multipliers.
+# Use uppercase mob names like ENDER_DRAGON.
+# Use uppercase block names, for example DIAMOND_ORE.
+# Set a value to 0 to stop that activity from giving EXP.
+
+
+# EXP from player activities.
+exp-sources:
+  mob-kill:
+    # EXP for hostile mobs not listed below.
+    default: 3
+    # EXP for passive mobs not listed below.
+    passive-default: 1
+    # EXP for mobs named/tagged as boss.
+    bosses: 50
+    # EXP can be different for each mob.
+    types:
+      # Overworld hostile mobs and biome variants.
+      ZOMBIE: 3
+      ZOMBIE_VILLAGER: 4
+      DROWNED: 4
+      HUSK: 4
+      SKELETON: 3
+      STRAY: 4
+      BOGGED: 5
+      SPIDER: 3
+      CAVE_SPIDER: 4
+      CREEPER: 4
+      WITCH: 8
+      PHANTOM: 6
+      SLIME: 1
+      SILVERFISH: 3
+      ENDERMITE: 3
+      BREEZE: 12
+      PILLAGER: 6
+      VINDICATOR: 8
+      EVOKER: 16
+      VEX: 5
+      RAVAGER: 25
+      GUARDIAN: 7
+      ELDER_GUARDIAN: 25
+      WARDEN: 60
+      # Nether and End.
+      BLAZE: 6
+      GHAST: 10
+      MAGMA_CUBE: 2
+      WITHER_SKELETON: 6
+      PIGLIN: 4
+      PIGLIN_BRUTE: 9
+      ZOMBIFIED_PIGLIN: 2
+      HOGLIN: 6
+      ZOGLIN: 9
+      ENDERMAN: 6
+      SHULKER: 10
+      WITHER: 90
+      ENDER_DRAGON: 130
+      # Passive mobs give low EXP so farming them is not too strong.
+      ARMADILLO: 1
+      COW: 1
+      SHEEP: 1
+      PIG: 1
+      CHICKEN: 1
+      RABBIT: 1
+      GOAT: 1
+      CAMEL: 1
+      SNIFFER: 2
+      TURTLE: 1
+      FROG: 1
+      BEE: 1
+      AXOLOTL: 1
+      SQUID: 1
+      GLOW_SQUID: 1
+      COD: 1
+      SALMON: 1
+      PUFFERFISH: 1
+      TROPICAL_FISH: 1
+  # EXP for killing another player.
+  player-kill: 10
+
+  # EXP from breaking mining blocks.
+  # Deepslate ores can have different values from normal ores.
+  mining:
+    COAL_ORE: 3
+    DEEPSLATE_COAL_ORE: 3
+    COPPER_ORE: 3
+    DEEPSLATE_COPPER_ORE: 3
+    IRON_ORE: 5
+    DEEPSLATE_IRON_ORE: 6
+    GOLD_ORE: 5
+    DEEPSLATE_GOLD_ORE: 6
+    REDSTONE_ORE: 5
+    DEEPSLATE_REDSTONE_ORE: 6
+    LAPIS_ORE: 5
+    DEEPSLATE_LAPIS_ORE: 6
+    DIAMOND_ORE: 12
+    DEEPSLATE_DIAMOND_ORE: 15
+    EMERALD_ORE: 13
+    DEEPSLATE_EMERALD_ORE: 16
+    NETHER_GOLD_ORE: 2
+    NETHER_QUARTZ_ORE: 2
+    ANCIENT_DEBRIS: 30
+    AMETHYST_CLUSTER: 6
+    BUDDING_AMETHYST: 0
+  farming:
+    # Normal crops only give EXP when fully grown.
+    WHEAT: 3
+    CARROTS: 3
+    POTATOES: 3
+    BEETROOTS: 3
+    NETHER_WART: 7
+    COCOA: 3
+    PUMPKIN: 4
+    MELON: 2
+    SUGAR_CANE: 3
+    CACTUS: 2
+    BAMBOO: 2
+    KELP: 4
+    KELP_PLANT: 4
+    SWEET_BERRY_BUSH: 3
+    # Glow Berries dipanen lewat klik kanan (Cave Vines).
+    CAVE_VINES: 4
+    CAVE_VINES_PLANT: 4
+    BROWN_MUSHROOM: 2
+    RED_MUSHROOM: 2
+    MUSHROOM_STEM: 3
+    CHORUS_FLOWER: 7
+    CHORUS_PLANT: 4
+    PITCHER_CROP: 7
+    TORCHFLOWER_CROP: 7
+    MANGROVE_PROPAGULE: 3
+    WEEPING_VINES: 3
+    WEEPING_VINES_PLANT: 3
+    TWISTING_VINES: 3
+    TWISTING_VINES_PLANT: 3
+    SEA_PICKLE: 2
+  # Woodcutting EXP from breaking logs, stems, woods, and hyphae.
+  woodcutting:
+    OAK_LOG: 3
+    STRIPPED_OAK_LOG: 3
+    SPRUCE_LOG: 3
+    STRIPPED_SPRUCE_LOG: 3
+    BIRCH_LOG: 3
+    STRIPPED_BIRCH_LOG: 3
+    JUNGLE_LOG: 3
+    STRIPPED_JUNGLE_LOG: 3
+    ACACIA_LOG: 3
+    STRIPPED_ACACIA_LOG: 3
+    DARK_OAK_LOG: 3
+    STRIPPED_DARK_OAK_LOG: 3
+    MANGROVE_LOG: 3
+    STRIPPED_MANGROVE_LOG: 3
+    CHERRY_LOG: 3
+    STRIPPED_CHERRY_LOG: 3
+    CRIMSON_STEM: 4
+    STRIPPED_CRIMSON_STEM: 4
+    WARPED_STEM: 4
+    STRIPPED_WARPED_STEM: 4
+    OAK_WOOD: 3
+    SPRUCE_WOOD: 3
+    BIRCH_WOOD: 3
+    JUNGLE_WOOD: 3
+    ACACIA_WOOD: 3
+    DARK_OAK_WOOD: 3
+    MANGROVE_WOOD: 3
+    CHERRY_WOOD: 3
+    CRIMSON_HYPHAE: 4
+    WARPED_HYPHAE: 4
+  # EXP from dirt, sand, gravel, and similar blocks.
+  digging:
+    DIRT: 2
+    GRASS_BLOCK: 2
+    COARSE_DIRT: 2
+    ROOTED_DIRT: 2
+    PODZOL: 2
+    MYCELIUM: 2
+    SAND: 2
+    RED_SAND: 2
+    GRAVEL: 2
+    CLAY: 4
+    MUD: 2
+    PACKED_MUD: 2
+    MUD_BRICKS: 3
+    SNOW_BLOCK: 3
+    MOSS_BLOCK: 4
+    CALCITE: 4
+    TUFF: 4
+    DRIPSTONE_BLOCK: 4
+    NETHERRACK: 2
+    END_STONE: 6
+    BLACKSTONE: 2
+    BASALT: 2
+    SMOOTH_BASALT: 2
+    SOUL_SAND: 2
+    SOUL_SOIL: 2
+  fishing:
+    # Normal fish catches.
+    fish: 12
+    # Treasure catches from fishing.
+    treasure: 28
+    # Junk catches from fishing.
+    junk: 4
+  combat:
+    # Players gain combat EXP when damage reaches this value.
+    # Kept higher so mob farms are not the only leveling route.
+    damage-exp-every: 25.0
+    # Base EXP per damage step. Damage 50 with damage-exp-every 25 gives 2 EXP.
+    exp: 1
+    # true  = bigger hits can give more EXP.
+    # false = each hit can only give the base EXP once.
+    exp-per-threshold: true
+    # Combat EXP cap per hit to prevent burst leveling.
+    max-exp-per-hit: 6
+  archer:
+    # Extra EXP when arrows or projectiles hit.
+    projectile-hit: 1
+  alchemy:
+    # EXP from brewing potions.
+    brew-potion: 16
+  enchanting:
+    # EXP from enchanting. Final EXP is base + enchant level * exp-per-level.
+    base: 4
+    exp-per-level: 0.45
+    # Maximum EXP per enchant action.
+    max-exp: 26
+  smelting:
+    # EXP per item taken from furnace output.
+    exp-per-item: 2
+    # Maximum EXP from one furnace extract action.
+    max-exp-per-extract: 48
+  breeding:
+    # EXP when breeding animals.
+    animal: 10
+  taming:
+    # EXP when taming animals.
+    animal: 18
+  shearing:
+    # EXP when shearing supported entities.
+    entity: 4
+  beekeeping:
+    # EXP when harvesting honey.
+    honey-harvest: 8
+  advancement:
+    # EXP from advancement types.
+    task: 15
+    goal: 30
+    challenge: 60
+  raid:
+    # EXP for every player who wins a raid.
+    win: 120
+
+

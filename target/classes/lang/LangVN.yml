@@ -1,0 +1,62 @@
+format:
+  line:
+    text: "&#6D7890━━━━━━━━━━━━━━━━━━━━"
+    color: "&#6D7890"
+    character: "━"
+    length: 20
+messages:
+  prefix: "&#C7B8FFOrbitSkills &#6D7890› &#F7F3FF"
+  no-permission: "&#FFB6C8Bạn không có quyền."
+  level-up: "&#B8F7D4Lên Cấp &#6D7890› &#F7F3FF%level%"
+  exp-gain: "&#B8F7D4+%exp% EXP &#6D7890( &#F7F3FF%current%&#6D7890/&#F7F3FF%needed% &#6D7890)"
+  stat-added: "&#B8F7D4+%stat%"
+  stat-maxed: "&#FFB6C8Tối đa."
+  not-enough-points: "&#FFB6C8Không đủ SP."
+  clan-rerolled: "&#C7B8FFChủng Tộc &#6D7890› &#F7F3FF%clan% &#6D7890( %rarity% &#6D7890)"
+  clan-current: "&#C7B8FFThị Tộc &#6D7890› &#F7F3FF%clan%"
+  need-fragment: "&#FFB6C8Cần %amount% Mảnh Chủng Tộc."
+  need-rank-fragment: "&#FFB6C8Cần %amount% Mảnh Lớp."
+  rank-rerolled: "&#A7E8FF%stat% &#6D7890› &#F7F3FF%rank% &#6D7890( %rarity% &#6D7890)"
+  auto-reroll-busy: "&#FFB6C8Tự động đang chạy."
+  auto-reroll-start: "&#FFD6A5Tự Động &#6D7890› &#F7F3FF%target% &#6D7890| &#F7F3FF%max_fragments%x"
+  clan-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#C7B8FF%clan% &#6D7890( %rarity% &#6D7890)"
+  rank-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#A7E8FF%stat% &#6D7890› &#F7F3FF%rank%"
+  clan-auto-rerolled: "&#C7B8FFXong &#6D7890› &#F7F3FF%clan% &#6D7890| &#F7F3FF%attempts%x"
+  rank-auto-rerolled: "&#A7E8FFXong &#6D7890› &#F7F3FF%stat% %rank% &#6D7890| &#F7F3FF%attempts%x"
+  auto-reroll-reached: "&#B8F7D4Đã Đạt"
+  auto-reroll-limit: "&#FFB6C8Giới Hạn"
+menu:
+  words: { unlocked: "&#B8F7D4Mở", locked: "&#FFB6C8Khóa" }
+commands:
+  help:
+    - "&#C7B8FF/orbitskills reload &#6D7890- &#8FA0B7Tải lại file"
+    - "&#C7B8FF/orbitskills give fragment Races <player> <amount>"
+    - "&#C7B8FF/orbitskills give fragment Stats_Class <player> <amount>"
+    - "&#C7B8FF/orbitskills set race <player> <race>"
+    - "&#C7B8FF/orbitskills set clan <player> <clan>"
+    - "&#C7B8FF/orbitskills scanall &#6D7890- &#8FA0B7Kiểm tra SP thừa/thiếu"
+  reload: "&#B8F7D4Đã tải lại."
+  player-not-found: "&#FFB6C8Không tìm thấy người chơi."
+  invalid-number: "&#FFB6C8Số không hợp lệ."
+  invalid-stat: "&#FFB6C8Chỉ số không hợp lệ."
+  unknown-race: "&#FFB6C8Chủng tộc không xác định."
+  unknown-clan: "&#FFB6C8Gia tộc không xác định."
+stats:
+  names: { archery: "Cung", fighting: "Chiến Đấu", power: "Sức Mạnh", defense: "Phòng Thủ", health: "Máu", alchemy: "Giả Kim" }
+  descriptions:
+    archery: "Sát thương cung."
+    fighting: "Sát thương chiến đấu."
+    power: "Sát thương tay."
+    defense: "DEF và HP thêm."
+    health: "HP tối đa."
+    alchemy: "Hồi máu và bền bỉ."
+chat-profile:
+  lines:
+    - "{line}"
+    - "&#F7F3FF{player} &#6D7890| &#FFD6A5Lv {level_padded}"
+    - "&#A7E8FFEXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp} &#6D7890( &#B8F7D4{exp_percent}% &#6D7890)"
+    - "&#C7B8FFChủng Tộc &#F7F3FF{race} &#6D7890| &#C7B8FFThị Tộc &#F7F3FF{clan}"
+    - "&#B8F7D4SP &#F7F3FF{stats_point} &#6D7890| &#8FA0B7Đã Dùng &#F7F3FF{used_point}"
+    - "&#FFB6C8Chiến Đấu &#F7F3FF+{melee_damage} &#6D7890| &#FFE7A3Cung &#F7F3FF+{projectile_damage}"
+    - "&#A7E8FFHP &#F7F3FF{max_health} &#6D7890| &#C7B8FFDEF &#F7F3FF{defense}"
+    - "{line}"

@@ -1,0 +1,56 @@
+﻿menu:
+  id: rank
+  size: 36
+  title: "Classes"
+  auto-slots: [19, 20, 21, 23, 24, 25]
+  items:
+    rank-info:
+      material: NETHER_STAR
+      slot: 4
+      custom-model-data: 0
+      enchantment_glint_override: true
+      priority: 1
+      name: "&#A7E8FFClasses"
+      lore: ["&#8FA0B7Cost &#F7F3FF{rank_cost}"]
+    rank-stat:
+      material: BOOK
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#F7F3FF{stat} &#6D7890[ {rank_colored} &#6D7890]"
+      lore:
+        - "&#A7E8FF◆ &#8FA0B7Rank {rank_colored} &#6D7890| &#8FA0B7x{rank_multiplier}"
+        - "&#C7B8FF◆ &#8FA0B7Point &#F7F3FF{stat_point}"
+        - "&#B8F7D4◆ &#8FA0B7Now &#F7F3FF{stat_bonus}"
+        - "&#FFE7A3◆ &#8FA0B7Cost &#F7F3FF{rank_cost}"
+    rank-auto:
+      material: NETHER_STAR
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#FFD6A5Auto {stat}"
+      lore:
+        - "&#8FA0B7Target &#F7F3FF{target_rarity}"
+        - "&#8FA0B7Limit &#F7F3FF{max_fragments}"
+    rank-auto-toggle:
+      material: COMPARATOR
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#A7E8FF{target_rarity}"
+      lore: ["&#8FA0B7Rare → Epic → Mythic"]
+    stat-power: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-defense: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-health: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-fighting: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }
+    stat-archery: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }
+    stat-alchemy: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }
+    rank-back:
+      material: FIREWORK_ROCKET
+      slot: 31
+      custom-model-data: 0
+      enchantment_glint_override: true
+      priority: 1
+      open-command: "open:stats"
+      name: "&#FFD6A5Back"
+      lore: ["&#8FA0B7Return to Stats"]

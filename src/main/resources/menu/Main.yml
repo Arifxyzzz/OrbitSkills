@@ -1,0 +1,104 @@
+﻿menu:
+  id: stats
+  size: 36
+  title: "Stats"
+  stat-slots: [10, 11, 12, 14, 15, 16]
+  items:
+    filler:
+      material: BLACK_STAINED_GLASS_PANE
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 0
+      slots: ["0-35"]
+    stats-profile:
+      material: PLAYER_HEAD
+      #skull-owner: "Notch"
+      #skull-texture: "eyJOZ-"
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#F7F3FF{player} &#8FA0B7| &#FFD6A5Lv {level}"
+      lore:
+        - "{line}"
+        - "&#C7B8FF◆ &#8FA0B7EXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp} &#A7E8FF{exp_percent}%"
+        - "{progress_bar}"
+        - "{line}"
+        - "&#C7B8FF◆ &#8FA0B7Race &#F7F3FF{race} &#6D7890| &#8FA0B7Clan &#F7F3FF{clan}"
+        - "&#B8F7D4◆ &#8FA0B7SP &#F7F3FF{stats_point} &#6D7890| &#8FA0B7Used &#F7F3FF{used_point}"
+        - "&#FFB6C8◆ &#8FA0B7Fighting &#F7F3FF+{melee_damage} &#6D7890| &#FFE7A3Archery &#F7F3FF+{projectile_damage}"
+        - "&#A7E8FF◆ &#8FA0B7HP &#F7F3FF{max_health} &#6D7890| &#C7B8FFDEF &#F7F3FF{defense}"
+        - "{line}"
+    stat-entry:
+      material: BOOK
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#F7F3FF{stat} &#6D7890[ {rank_colored} &#6D7890]"
+      lore:
+        - "{line}"
+        - "&#C7B8FF◆ &#8FA0B7Point &#F7F3FF{stat_point} &#6D7890| {rank_colored}"
+        - "{stat_bar}"
+        - "&#B8F7D4◆ &#8FA0B7Now &#F7F3FF{stat_bonus}"
+        - "&#FFE7A3◆ &#8FA0B7Each &#F7F3FF{stat_per_point}"
+        - "{line}"
+    rank-menu:
+      material: NETHER_STAR
+      slot: 30
+      custom-model-data: 0
+      enchantment_glint_override: true
+      priority: 1
+      module: class
+      open-command: "open:rank"
+      name: "&#A7E8FFClasses"
+      lore:
+        - "&#A7E8FF✦ &#8FA0B7Rank bonus for every stat"
+        - "&#6D7890› &#F7F3FFReroll with fragments"
+    race-menu:
+      material: AMETHYST_SHARD
+      slot: 31
+      custom-model-data: 2010
+      enchantment_glint_override: true
+      priority: 1
+      module: race
+      open-command: "open:clan"
+      name: "&#C7B8FFRaces"
+      lore:
+        - "&#C7B8FF✦ &#8FA0B7Passive skills and traits"
+        - "&#6D7890› &#F7F3FFReroll race"
+    guild-menu:
+      material: TOTEM_OF_UNDYING
+      slot: 32
+      custom-model-data: 2010
+      enchantment_glint_override: true
+      priority: 1
+      module: clan
+      open-command: "open:guild"
+      name: "&#B8F7D4Clans"
+      lore:
+        - "&#B8F7D4✦ &#8FA0B7Clan stat bonus"
+        - "&#6D7890› &#F7F3FFReroll clan"
+    leaderboard:
+      material: PLAYER_HEAD
+      slot: 34
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      open-command: "open:leaderboard"
+      name: "&#FFE7A3Leaderboard"
+      lore:
+        - "&#FFE7A3✦ &#8FA0B7Top level and EXP"
+    stats-guide:
+      material: WRITABLE_BOOK
+      slot: 28
+      custom-model-data: 12601
+      enchantment_glint_override: false
+      priority: 1
+      open-command: "open:guide"
+      name: "&#FFD6A5Guide"
+      lore:
+        - "&#FFD6A5✦ &#8FA0B7Leveling, SP, fragments"
+    stat-power: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-defense: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-health: { material: ENCHANTED_BOOK, custom-model-data: 3167, enchantment_glint_override: true, priority: 1 }
+    stat-fighting: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }
+    stat-archery: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }
+    stat-alchemy: { material: ENCHANTED_BOOK, custom-model-data: 3168, enchantment_glint_override: true, priority: 1 }

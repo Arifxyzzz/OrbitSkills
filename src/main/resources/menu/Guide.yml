@@ -1,0 +1,100 @@
+﻿menu:
+  id: guide
+  size: 36
+  title: "Guide"
+  items:
+    guide-grinding:
+      material: DIAMOND_PICKAXE
+      slot: 10
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      name: "&#FFE7A3Leveling"
+      lore:
+        - "&#FFE7A3◆ &#8FA0B7Mine, farm, fish, hunt"
+        - "&#FFE7A3◆ &#8FA0B7Brew, smelt, raid, progress"
+        - "&#FFE7A3◆ &#8FA0B7Bosses give EXP and fragments"
+    guide-point:
+      material: EXPERIENCE_BOTTLE
+      slot: 11
+      custom-model-data: 0
+      enchantment_glint_override: true
+      priority: 1
+      name: "&#B8F7D4Stats Point"
+      lore:
+        - "&#B8F7D4◆ &#8FA0B7Earn &#F7F3FF{stats_per_level} SP &#8FA0B7per level"
+        - "&#FFB6C8◆ &#8FA0B7Fighting &#6D7890| &#FFE7A3Archery &#6D7890| &#C7B8FFPower"
+        - "&#A7E8FF◆ &#8FA0B7HP &#6D7890| &#C7B8FFDEF &#6D7890| &#B8F7D4Alchemy"
+    guide-fragment:
+      material: AMETHYST_SHARD
+      slot: 12
+      custom-model-data: 21001
+      enchantment_glint_override: true
+      priority: 1
+      name: "&#C7B8FFFragments"
+      lore:
+        - "&#C7B8FF◆ &#8FA0B7Race &#F7F3FF{race_cost}x"
+        - "&#A7E8FF◆ &#8FA0B7Class &#F7F3FF{rank_cost}x"
+        - "&#FFD6A5◆ &#8FA0B7Clan fragments for clan rerolls"
+        - "&#8FA0B7◆ &#8FA0B7Level up and defeat bosses"
+    guide-clan:
+      material: AMETHYST_SHARD
+      slot: 14
+      custom-model-data: 2010
+      enchantment_glint_override: false
+      priority: 1
+      module: race
+      open-command: "open:clan"
+      name: "&#C7B8FFRaces"
+      lore:
+        - "&#C7B8FF◆ &#8FA0B7Reroll for unique passives"
+        - "&#C7B8FF◆ &#8FA0B7Can affect Damage, HP, DEF"
+        - "&#C7B8FF◆ &#8FA0B7Some races unlock traits"
+        - "&#C7B8FF◆ &#8FA0B7Cost: &#F7F3FF{race_cost} Race Fragments"
+    guide-guild:
+      material: TOTEM_OF_UNDYING
+      slot: 15
+      custom-model-data: 2010
+      enchantment_glint_override: false
+      priority: 1
+      module: clan
+      open-command: "open:guild"
+      name: "&#B8F7D4Clans"
+      lore:
+        - "&#B8F7D4◆ &#8FA0B7Clan stat bonuses"
+        - "&#B8F7D4◆ &#8FA0B7Manual or auto reroll"
+        - "&#B8F7D4◆ &#8FA0B7Cost: &#F7F3FF{clan_cost} Clan Fragments"
+    guide-rank:
+      material: NETHER_STAR
+      slot: 16
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      module: class
+      open-command: "open:rank"
+      name: "&#A7E8FFClasses"
+      lore:
+        - "&#A7E8FF◆ &#8FA0B7F → D → C → B → A → S → SS → SSS"
+        - "&#A7E8FF◆ &#8FA0B7Higher class = stronger stats"
+        - "&#A7E8FF◆ &#8FA0B7Each stat has its own rank"
+        - "&#A7E8FF◆ &#8FA0B7Cost: &#F7F3FF{rank_cost} Class Fragment"
+    guide-leaderboard:
+      material: PLAYER_HEAD
+      slot: 13
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      open-command: "open:leaderboard"
+      name: "&#FFE7A3Leaderboard"
+      lore:
+        - "&#FFE7A3◆ &#8FA0B7Ranked by level → total EXP"
+        - "&#FFE7A3◆ &#8FA0B7Top players across the server"
+    guide-back:
+      material: FIREWORK_ROCKET
+      slot: 31
+      custom-model-data: 0
+      enchantment_glint_override: false
+      priority: 1
+      open-command: "open:stats"
+      name: "&#FFD6A5Back"
+      lore: ["&#8FA0B7Return to Stats"]

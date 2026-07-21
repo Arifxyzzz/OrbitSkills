@@ -1,0 +1,62 @@
+format:
+  line:
+    text: "&#6D7890━━━━━━━━━━━━━━━━━━━━"
+    color: "&#6D7890"
+    character: "━"
+    length: 20
+messages:
+  prefix: "&#C7B8FFOrbitSkills &#6D7890› &#F7F3FF"
+  no-permission: "&#FFB6C8권한이 없습니다."
+  level-up: "&#B8F7D4레벨 업 &#6D7890› &#F7F3FF%level%"
+  exp-gain: "&#B8F7D4+%exp% EXP &#6D7890( &#F7F3FF%current%&#6D7890/&#F7F3FF%needed% &#6D7890)"
+  stat-added: "&#B8F7D4+%stat%"
+  stat-maxed: "&#FFB6C8최대입니다."
+  not-enough-points: "&#FFB6C8SP가 부족합니다."
+  clan-rerolled: "&#C7B8FF종족 &#6D7890› &#F7F3FF%clan% &#6D7890( %rarity% &#6D7890)"
+  clan-current: "&#C7B8FF씨족 &#6D7890› &#F7F3FF%clan%"
+  need-fragment: "&#FFB6C8종족 조각이 %amount%개 필요합니다."
+  need-rank-fragment: "&#FFB6C8클래스 조각이 %amount%개 필요합니다."
+  rank-rerolled: "&#A7E8FF%stat% &#6D7890› &#F7F3FF%rank% &#6D7890( %rarity% &#6D7890)"
+  auto-reroll-busy: "&#FFB6C8자동 재추출이 실행 중입니다."
+  auto-reroll-start: "&#FFD6A5자동 &#6D7890› &#F7F3FF%target% &#6D7890| &#F7F3FF%max_fragments%x"
+  clan-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#C7B8FF%clan% &#6D7890( %rarity% &#6D7890)"
+  rank-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#A7E8FF%stat% &#6D7890› &#F7F3FF%rank%"
+  clan-auto-rerolled: "&#C7B8FF완료 &#6D7890› &#F7F3FF%clan% &#6D7890| &#F7F3FF%attempts%x"
+  rank-auto-rerolled: "&#A7E8FF완료 &#6D7890› &#F7F3FF%stat% %rank% &#6D7890| &#F7F3FF%attempts%x"
+  auto-reroll-reached: "&#B8F7D4달성"
+  auto-reroll-limit: "&#FFB6C8제한"
+menu:
+  words: { unlocked: "&#B8F7D4개방", locked: "&#FFB6C8잠금" }
+commands:
+  help:
+    - "&#C7B8FF/orbitskills reload &#6D7890- &#8FA0B7파일 다시 불러오기"
+    - "&#C7B8FF/orbitskills give fragment Races <player> <amount>"
+    - "&#C7B8FF/orbitskills give fragment Stats_Class <player> <amount>"
+    - "&#C7B8FF/orbitskills set race <player> <race>"
+    - "&#C7B8FF/orbitskills set clan <player> <clan>"
+    - "&#C7B8FF/orbitskills scanall &#6D7890- &#8FA0B7SP 과부족 확인"
+  reload: "&#B8F7D4다시 불러왔습니다."
+  player-not-found: "&#FFB6C8플레이어를 찾을 수 없습니다."
+  invalid-number: "&#FFB6C8유효하지 않은 숫자입니다."
+  invalid-stat: "&#FFB6C8유효하지 않은 스탯입니다."
+  unknown-race: "&#FFB6C8알 수 없는 종족입니다."
+  unknown-clan: "&#FFB6C8알 수 없는 씨족입니다."
+stats:
+  names: { archery: "궁술", fighting: "전투", power: "힘", defense: "방어", health: "체력", alchemy: "연금" }
+  descriptions:
+    archery: "궁술 피해."
+    fighting: "전투 피해."
+    power: "힘 피해."
+    defense: "방어와 추가 HP."
+    health: "최대 HP."
+    alchemy: "회복과 지속력."
+chat-profile:
+  lines:
+    - "{line}"
+    - "&#F7F3FF{player} &#6D7890| &#FFD6A5Lv {level_padded}"
+    - "&#A7E8FFEXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp} &#6D7890( &#B8F7D4{exp_percent}% &#6D7890)"
+    - "&#C7B8FF종족 &#F7F3FF{race} &#6D7890| &#C7B8FF씨족 &#F7F3FF{clan}"
+    - "&#B8F7D4SP &#F7F3FF{stats_point} &#6D7890| &#8FA0B7사용 &#F7F3FF{used_point}"
+    - "&#FFB6C8전투 &#F7F3FF+{melee_damage} &#6D7890| &#FFE7A3궁술 &#F7F3FF+{projectile_damage}"
+    - "&#A7E8FFHP &#F7F3FF{max_health} &#6D7890| &#C7B8FFDEF &#F7F3FF{defense}"
+    - "{line}"

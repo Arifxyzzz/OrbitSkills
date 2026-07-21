@@ -1,0 +1,118 @@
+﻿settings:
+  # Language used by the plugin.
+  # Available: EN, ID, MY, PH, CN, ES, JP, KR, TH, VN, RU, FR, DE.
+  language: EN
+
+  # Keeps old configs updated with new defaults.
+  # Leave this value as-is.
+  balance-version: 48
+
+  # Maximum total SP a player can have.
+  max-total-stat-points: 100000
+
+  # Highest level players can reach.
+  # Higher max-level spreads SP rewards across more levels.
+  max-level: 1000
+
+  # How often player data is saved.
+  save-interval-seconds: 180
+
+  # Real HP stored by Minecraft.
+  # The plugin can still show higher HP, like 4000, safely.
+  # Keep 1024 for the safest setup.
+  physical-health-cap: 1024
+
+  # Shows short EXP progress when the repeating actionbar is off.
+  actionbar-progress: true
+
+# Repeating actionbar shown every second.
+# false = hide the repeating actionbar.
+actionbar: true
+
+# Text shown in the actionbar. Colors support &#HEX.
+# Health here shows the full RPG HP, not the smaller Minecraft HP limit.
+actionbar-text: "&#FF3972❤ {health_formatted}&#6D7890/&#F7F3FF{max_health_formatted}      &#FFE7A3✦ {exp_formatted}&#6D7890/&#F7F3FF{needed_exp_formatted}"
+
+balance:
+  # Main balance preset.
+  # casual   = faster stat growth for relaxed servers.
+  # balanced = default public server curve.
+  # hard     = slower stat growth for long-term servers.
+  # Level EXP speed is changed in level.yml.
+  profile: balanced
+
+modules:
+  # Turn systems on or off for the whole server.
+  # stats = stat point bonuses.
+  # class = class rank bonuses.
+  # race  = race passives and race stat bonuses.
+  # clan  = clan stat bonuses.
+  # Use /os disable <name> during PvP events.
+  stats: true
+  class: true
+  race: true
+  clan: true
+
+auto-get:
+  # Gives better rarity after too many unlucky rerolls.
+  # Set any target to 0 to turn that guarantee off.
+  Races:
+    # false = race rerolls do not get guaranteed rarity.
+    enabled: true
+    targets:
+      # After this many unlucky race rerolls, the player gets at least Epic.
+      epic: 120
+      # After this many unlucky race rerolls, the player gets Mythic.
+      mythic: 500
+  Stats_Class:
+    # Class guarantee is counted separately from races and clans.
+    enabled: true
+    targets:
+      epic: 80
+      mythic: 300
+  Clans:
+    # Clan guarantee affects clan rerolls only.
+    enabled: true
+    targets:
+      epic: 100
+      mythic: 400
+
+auto-reroll:
+  # Auto reroll spends fragments until it gets the selected rarity.
+  # This is a safety limit so one click cannot spend infinite fragments.
+  max-fragments: 100
+  # Time between each reroll step. 20 ticks = 1 second.
+  delay-ticks: 8
+  sounds:
+    # Sound played for each rarity result.
+    common: BLOCK_NOTE_BLOCK_HAT
+    uncommon: BLOCK_NOTE_BLOCK_PLING
+    rare: ENTITY_EXPERIENCE_ORB_PICKUP
+    epic: ENTITY_PLAYER_LEVELUP
+    mythic: UI_TOAST_CHALLENGE_COMPLETE
+
+rarity-display:
+  # Display names and colors used in menus/messages.
+  # This changes only the text and color, not the roll chance.
+  common: { name: Common, color: "&#D7DEE8" }
+  uncommon: { name: Uncommon, color: "&#B8F7D4" }
+  rare: { name: Rare, color: "&#A7E8FF" }
+  epic: { name: Epic, color: "&#C7B8FF" }
+  mythic: { name: Mythic, color: "&#FFD6A5" }
+
+rank-reroll:
+  # Higher weight means easier to get. F is common, SSS is very rare.
+  # Bigger weight = bigger chance.
+  weights: { F: 230000, D: 135000, C: 70000, B: 30000, A: 10000, S: 2500, SS: 600, SSS: 80 }
+  # Rarity name shown for each class rank.
+  rarity: { F: COMMON, D: COMMON, C: UNCOMMON, B: RARE, A: EPIC, S: MYTHIC, SS: MYTHIC, SSS: MYTHIC }
+  colors:
+    # Rank colors shown in menus and profile text.
+    F: "&#9AA4B2"
+    D: "&#B8C2CC"
+    C: "&#B8F7D4"
+    B: "&#A7E8FF"
+    A: "&#C7B8FF"
+    S: "&#FFD6A5"
+    SS: "&#FFB6C8"
+    SSS: "&#FF9FE8"

@@ -1,0 +1,130 @@
+﻿# Clan settings. Clans only give stats, no passive skills.
+# Use /os set clan <player> <clan> to assign one.
+# weight = higher number means easier to get.
+# stats.damage-percent = all damage.
+# stats.assassin-percent = melee damage.
+# stats.archer-percent = bow/projectile damage.
+# stats.health-percent = max HP.
+# stats.defense-percent = damage reduction.
+# stats.alchemy-percent = potion/heal power.
+# stats.night-damage-percent = extra damage at night.
+# Clan stats add together with race stats.
+# Use /os disable clan to turn clan bonuses off.
+
+clans:
+  NONE:
+    display-name: "&#8FA0B7N/A"
+    stats: {}
+  ASSASSIN:
+    display-name: "&#5CC8FFAssassin"
+    rarity: RARE
+    weight: 900
+    stats:
+      damage-percent: 3
+      assassin-percent: 5
+      night-damage-percent: 3
+      health-percent: -1
+  CELESTIAL:
+    display-name: "&#C77DFFCelestial"
+    rarity: EPIC
+    weight: 320
+    stats:
+      health-percent: 2
+      defense-percent: 1
+      alchemy-percent: 4
+  SHADOW:
+    display-name: "&#9747ffShadow"
+    rarity: EPIC
+    weight: 260
+    stats:
+      damage-percent: 4
+      defense-percent: 2
+      night-damage-percent: 4
+  PHOENIX:
+    display-name: "&#FFB84DPhoenix"
+    rarity: EPIC
+    weight: 240
+    stats:
+      health-percent: 3
+      alchemy-percent: 5
+      defense-percent: 1
+  PLAGUE:
+    display-name: "&#7DFF63Plague"
+    rarity: UNCOMMON
+    weight: 1300
+    stats:
+      damage-percent: 2
+      alchemy-percent: 3
+      defense-percent: 1
+  AETHER:
+    display-name: "&#E6D8FFAether"
+    rarity: RARE
+    weight: 900
+    stats:
+      archer-percent: 5
+      defense-percent: 2
+      health-percent: -1
+  ONI:
+    display-name: "&#FF6B6BOni"
+    rarity: RARE
+    weight: 850
+    stats:
+      damage-percent: 4
+      assassin-percent: 3
+      defense-percent: -1
+  STORMCALLER:
+    display-name: "&#F3E08DStormcaller"
+    rarity: RARE
+    weight: 850
+    stats:
+      archer-percent: 6
+      damage-percent: 1
+  RAIKAGE:
+    display-name: "&#FFF06ARaikage"
+    rarity: MYTHIC
+    weight: 80
+    stats:
+      damage-percent: 3
+      assassin-percent: 4
+      defense-percent: 1
+  BLAZEFURY:
+    display-name: "&#FF8A3DBlazefury"
+    rarity: EPIC
+    weight: 260
+    stats:
+      damage-percent: 5
+      health-percent: -1
+      defense-percent: -1
+  WARDENBORN:
+    display-name: "&#3DD6FFWardenborn"
+    rarity: MYTHIC
+    weight: 70
+    stats:
+      health-percent: 5
+      defense-percent: 4
+      damage-percent: 1
+  VOIDWALKER:
+    display-name: "&#A66BFFVoidwalker"
+    rarity: EPIC
+    weight: 220
+    stats:
+      damage-percent: 3
+      defense-percent: 3
+      night-damage-percent: 2
+  NECROMANCER:
+    display-name: "&#98FF98Necromancer"
+    rarity: EPIC
+    weight: 240
+    stats:
+      alchemy-percent: 6
+      damage-percent: 2
+      night-damage-percent: 2
+  ASTRAL:
+    display-name: "&#FFD6FFAstral"
+    rarity: MYTHIC
+    weight: 60
+    stats:
+      damage-percent: 2
+      archer-percent: 3
+      alchemy-percent: 3
+

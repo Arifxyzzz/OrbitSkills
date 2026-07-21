@@ -1,0 +1,65 @@
+# Fragment list.
+# Add a fragment here, then use the same name in mob-drops.
+# Fragment names must be typed exactly the same.
+# Example command: /os give fragment Races <player> 10
+
+fragments:
+  Stats_Class:
+    # Item shown/given for this fragment type.
+    material: NETHER_STAR
+    # Custom item model. Use 0 if you do not use a custom item pack.
+    custom-model-data: 2011
+    # Amount spent per manual reroll in the related menu.
+    cost: 1
+    name: "&#A7E8FFStats Class Fragment"
+    lore:
+      - "&#8FA0B7Used for class rerolls."
+      - "&#8FA0B7Stats menu."
+
+  Races:
+    # Race fragments are used for race reroll only.
+    material: AMETHYST_SHARD
+    custom-model-data: 2010
+    cost: 3
+    name: "&#C7B8FFRace Fragment"
+    lore:
+      - "&#8FA0B7Used for race rerolls."
+      - "&#8FA0B7Race menu."
+
+  Clans:
+    # Clan fragments are used for clan reroll only.
+    material: ECHO_SHARD
+    custom-model-data: 2012
+    cost: 3
+    name: "&#FFD6A5Clan Fragment"
+    lore:
+      - "&#8FA0B7Used for clan rerolls."
+      - "&#8FA0B7Clan menu."
+
+mob-drops:
+  # Master switch for fragment drops from mobs.
+  # false = mobs never drop fragments from this file.
+  enabled: true
+
+  # true  = fragments drop on the ground at the mob death location.
+  # false = fragments go directly into the killer inventory.
+  # Use false if you do not want players to lose fragments on the ground.
+  drop-naturally: true
+
+  # Mob names should be uppercase.
+  # Correct: ENDER_DRAGON, WITHER, WARDEN.
+  # Wrong: ender-dragon, Ender Dragon.
+  mobs:
+    ENDER_DRAGON:
+      # Each value is the fragment amount dropped.
+      Races: 30
+      Stats_Class: 12
+      Clans: 8
+    WITHER:
+      Races: 10
+      Stats_Class: 4
+      Clans: 3
+    WARDEN:
+      Races: 6
+      Stats_Class: 3
+      Clans: 2

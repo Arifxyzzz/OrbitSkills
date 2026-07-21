@@ -1,0 +1,62 @@
+format:
+  line:
+    text: "&#6D7890━━━━━━━━━━━━━━━━━━━━"
+    color: "&#6D7890"
+    character: "━"
+    length: 20
+messages:
+  prefix: "&#C7B8FFOrbitSkills &#6D7890› &#F7F3FF"
+  no-permission: "&#FFB6C8Нет прав."
+  level-up: "&#B8F7D4Повышение Уровня &#6D7890› &#F7F3FF%level%"
+  exp-gain: "&#B8F7D4+%exp% EXP &#6D7890( &#F7F3FF%current%&#6D7890/&#F7F3FF%needed% &#6D7890)"
+  stat-added: "&#B8F7D4+%stat%"
+  stat-maxed: "&#FFB6C8Максимум."
+  not-enough-points: "&#FFB6C8Недостаточно SP."
+  clan-rerolled: "&#C7B8FFРаса &#6D7890› &#F7F3FF%clan% &#6D7890( %rarity% &#6D7890)"
+  clan-current: "&#C7B8FFКлан &#6D7890› &#F7F3FF%clan%"
+  need-fragment: "&#FFB6C8Нужно %amount% фрагментов расы."
+  need-rank-fragment: "&#FFB6C8Нужно %amount% фрагментов класса."
+  rank-rerolled: "&#A7E8FF%stat% &#6D7890› &#F7F3FF%rank% &#6D7890( %rarity% &#6D7890)"
+  auto-reroll-busy: "&#FFB6C8Авто-реролл уже запущен."
+  auto-reroll-start: "&#FFD6A5Авто &#6D7890› &#F7F3FF%target% &#6D7890| &#F7F3FF%max_fragments%x"
+  clan-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#C7B8FF%clan% &#6D7890( %rarity% &#6D7890)"
+  rank-auto-roll: "&#6D7890[%attempt%/%max_attempts%] &#A7E8FF%stat% &#6D7890› &#F7F3FF%rank%"
+  clan-auto-rerolled: "&#C7B8FFГотово &#6D7890› &#F7F3FF%clan% &#6D7890| &#F7F3FF%attempts%x"
+  rank-auto-rerolled: "&#A7E8FFГотово &#6D7890› &#F7F3FF%stat% %rank% &#6D7890| &#F7F3FF%attempts%x"
+  auto-reroll-reached: "&#B8F7D4Достигнуто"
+  auto-reroll-limit: "&#FFB6C8Лимит"
+menu:
+  words: { unlocked: "&#B8F7D4Открыто", locked: "&#FFB6C8Закрыто" }
+commands:
+  help:
+    - "&#C7B8FF/orbitskills reload &#6D7890- &#8FA0B7Перезагрузить файлы"
+    - "&#C7B8FF/orbitskills give fragment Races <player> <amount>"
+    - "&#C7B8FF/orbitskills give fragment Stats_Class <player> <amount>"
+    - "&#C7B8FF/orbitskills set race <player> <race>"
+    - "&#C7B8FF/orbitskills set clan <player> <clan>"
+    - "&#C7B8FF/orbitskills scanall &#6D7890- &#8FA0B7Поиск избытка/недостатка SP"
+  reload: "&#B8F7D4Перезагружено."
+  player-not-found: "&#FFB6C8Игрок не найден."
+  invalid-number: "&#FFB6C8Неверное число."
+  invalid-stat: "&#FFB6C8Неверный параметр."
+  unknown-race: "&#FFB6C8Неизвестная раса."
+  unknown-clan: "&#FFB6C8Неизвестный клан."
+stats:
+  names: { archery: "Стрельба", fighting: "Бой", power: "Сила", defense: "Защита", health: "Здоровье", alchemy: "Алхимия" }
+  descriptions:
+    archery: "Урон от стрельбы."
+    fighting: "Урон в бою."
+    power: "Урон от силы."
+    defense: "Защита и доп. HP."
+    health: "Макс. HP."
+    alchemy: "Лечение и выносливость."
+chat-profile:
+  lines:
+    - "{line}"
+    - "&#F7F3FF{player} &#6D7890| &#FFD6A5Lv {level_padded}"
+    - "&#A7E8FFEXP &#F7F3FF{exp}&#6D7890/&#F7F3FF{needed_exp} &#6D7890( &#B8F7D4{exp_percent}% &#6D7890)"
+    - "&#C7B8FFРаса &#F7F3FF{race} &#6D7890| &#C7B8FFКлан &#F7F3FF{clan}"
+    - "&#B8F7D4SP &#F7F3FF{stats_point} &#6D7890| &#8FA0B7Исп. &#F7F3FF{used_point}"
+    - "&#FFB6C8Бой &#F7F3FF+{melee_damage} &#6D7890| &#FFE7A3Стрельба &#F7F3FF+{projectile_damage}"
+    - "&#A7E8FFHP &#F7F3FF{max_health} &#6D7890| &#C7B8FFDEF &#F7F3FF{defense}"
+    - "{line}"

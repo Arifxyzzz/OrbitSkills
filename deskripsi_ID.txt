@@ -1,0 +1,118 @@
+[CENTER][SIZE=6][COLOR=#1E6F9F][B]OrbitSkills[/B][/COLOR][/SIZE]
+[SIZE=4][COLOR=#5B3F99]RPG Progression Plugin with Levels, Stats, Races, Clans, Classes, and Menus[/COLOR][/SIZE]
+
+[COLOR=#237A4B][B]Buat progres player terasa seperti membangun karakter RPG sungguhan.[/B][/COLOR][/CENTER]
+
+
+[SIZE=5][COLOR=#A66A00][B]Tentang Plugin[/B][/COLOR][/SIZE]
+
+OrbitSkills adalah plugin progression RPG untuk server Minecraft. Player tidak hanya naik level, tapi juga membangun karakter melalui Stat Point, Race, Clan, Class Rank, fragment, reward level, dan menu interaktif.
+
+Setiap sistem punya peran sendiri:
+
+[LIST]
+[*][COLOR=#1E6F9F]Level[/COLOR] adalah progres utama player.
+[*][COLOR=#237A4B]Stat Point[/COLOR] dipakai untuk meningkatkan damage, defense, HP, dan healing.
+[*][COLOR=#5B3F99]Race[/COLOR] adalah asal/ras karakter player. Race bisa memberi stat, efek khusus, atau passive.
+[*][COLOR=#9A5A00]Clan[/COLOR] adalah kelompok/bloodline/guild player. Clan fokus memberi bonus stat tanpa passive tambahan.
+[*][COLOR=#A33A55]Class Rank[/COLOR] adalah kualitas tiap stat, dari F sampai SSS.
+[*][COLOR=#1E6F9F]Fragment[/COLOR] dipakai untuk reroll Race, Clan, dan Class Rank.
+[/LIST]
+
+
+[SIZE=5][COLOR=#A66A00][B]Fitur Utama[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]EXP dari banyak aktivitas seperti mob, mining, farming, fishing, combat, brewing, smelting, raid, dan lainnya.
+[*]6 stat utama: Archery, Fighting, Power, Defense, Health, dan Alchemy.
+[*]Race dengan rarity, chance, passive, dan fragment reroll.
+[*]Clan sebagai bonus stat tambahan yang mudah dipahami.
+[*]Class Rank F sampai SSS untuk membuat build player lebih unik.
+[*]Auto reroll sampai rarity target tercapai.
+[*]Guaranteed rarity agar player tidak sial tanpa batas.
+[*]Scaled HP untuk membuat HP besar seperti 4000+ tetap terasa natural.
+[*]Actionbar HP dan EXP progress.
+[*]Leaderboard, profile, guide, level reward, stats, race, clan, dan class menu.
+[*]PlaceholderAPI support untuk scoreboard, tab, dan menu lain.
+[/LIST]
+
+
+[SIZE=5][COLOR=#A66A00][B]Yang Membuat OrbitSkills Menarik[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]Player tidak hanya grind EXP, tapi benar-benar membentuk karakter.
+[*]Race memberi identitas karakter, Clan memberi arah bonus stat.
+[*]Class Rank membuat build tidak hanya bergantung pada jumlah point.
+[*]Fragment membuat reroll punya nilai dan bisa masuk ke ekonomi server.
+[*]Admin bisa mematikan Stats, Class, Race, atau Clan saat event PvP.
+[*]Config dipisah per bagian agar lebih mudah diatur.
+[/LIST]
+
+
+[SIZE=5][COLOR=#A66A00][B]Requirement[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]Java 21
+[*]Paper 1.21.x direkomendasikan
+[/LIST]
+
+[COLOR=#A33A55]CraftBukkit dan versi server lama tidak direkomendasikan.[/COLOR]
+
+
+[SIZE=5][COLOR=#A66A00][B]Plugin Opsional[/B][/COLOR][/SIZE]
+
+[LIST]
+[*][COLOR=#1E6F9F]PlaceholderAPI[/COLOR] - Untuk placeholder OrbitSkills.
+[*][COLOR=#237A4B]Vault[/COLOR] - Untuk reward uang jika server memakai economy plugin.
+[/LIST]
+
+
+[SIZE=5][COLOR=#A66A00][B]Command Utama[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]/skills, /stats - Membuka menu stats.
+[*]/level - Membuka menu level.
+[*]/race - Membuka menu race.
+[*]/clan - Membuka menu clan.
+[*]/profile [player] - Menampilkan profile player.
+[*]/os help - Bantuan admin.
+[*]/os reload - Reload file plugin.
+[*]/os scanall [fix] - Cek atau perbaiki SP player.
+[*]/os give point|level|exp <player|*> <amount>
+[*]/os give fragment <fragment> <player|*> <amount>
+[*]/os set level|race|clan <player> <value>
+[*]/os set class [player] <stat> <F-SSS>
+[*]/os disable/enable <stats|class|race|clan|all>
+[/LIST]
+
+
+[SIZE=5][COLOR=#A66A00][B]Permission[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]orbitskills.use - Akses normal plugin.
+[*]orbitskills.admin - Akses command admin.
+[*]orbitskills.multiplier.2 / 3 / 4 - Tier EXP multiplier.
+[/LIST]
+
+[SIZE=5][COLOR=#A66A00][B]Contoh PlaceholderAPI[/B][/COLOR][/SIZE]
+
+%orbitskills_level%, %orbitskills_exp%, %orbitskills_statspoint%, %orbitskills_race%, %orbitskills_clan%, %orbitskills_max_health%, %orbitskills_current_health%, %orbitskills_melee_damage%, %orbitskills_defense_bonus%, %orbitskills_archery_rank%
+
+[COLOR=#5C6675]Placeholder lain bisa dilihat dari /os placeholder.[/COLOR]
+
+
+[SIZE=5][COLOR=#A66A00][B]Bahasa[/B][/COLOR][/SIZE]
+
+English, Indonesian, Malaysia, Filipino, Chinese, Spanish, Japanese, Korean, Thai, Vietnamese, Russian, French, German.
+
+
+[SIZE=5][COLOR=#A66A00][B]Config[/B][/COLOR][/SIZE]
+
+[LIST]
+[*]File terpisah untuk config utama, menu, level, fragment, race, clan, dan EXP grinding.
+[*]Komentar config dibuat singkat dan mudah dipahami.
+[*]Mendukung custom item model, warna rarity, layout menu, dan reward tuning.
+[/LIST]
+
+
+[CENTER][COLOR=#5B3F99][B]OrbitSkills mengubah leveling biasa menjadi sistem karakter RPG yang lengkap.[/B][/COLOR][/CENTER]
