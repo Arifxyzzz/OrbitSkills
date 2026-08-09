@@ -11,6 +11,8 @@
       priority: 1
       name: "&#FFE7A3Leveling"
       lore:
+        - "&#FFE7A3◆ &#8FA0B7Max Level &#F7F3FF{max_level}"
+        - "&#FFE7A3◆ &#8FA0B7Total EXP &#F7F3FF{total_level_exp}"
         - "&#FFE7A3◆ &#8FA0B7Mine, farm, fish, hunt"
         - "&#FFE7A3◆ &#8FA0B7Brew, smelt, raid, progress"
         - "&#FFE7A3◆ &#8FA0B7Bosses give EXP and fragments"
@@ -22,7 +24,9 @@
       priority: 1
       name: "&#B8F7D4Stats Point"
       lore:
-        - "&#B8F7D4◆ &#8FA0B7Earn &#F7F3FF{stats_per_level} SP &#8FA0B7per level"
+        - "&#B8F7D4◆ &#8FA0B7Total &#F7F3FF{stat_point_cap} SP"
+        - "&#B8F7D4◆ &#8FA0B7Per level &#F7F3FF{sp_early} → {sp_mid} → {sp_late} SP"
+        - "&#B8F7D4◆ &#8FA0B7Rewards grow with your level"
         - "&#FFB6C8◆ &#8FA0B7Fighting &#6D7890| &#FFE7A3Archery &#6D7890| &#C7B8FFPower"
         - "&#A7E8FF◆ &#8FA0B7HP &#6D7890| &#C7B8FFDEF &#6D7890| &#B8F7D4Alchemy"
     guide-fragment:

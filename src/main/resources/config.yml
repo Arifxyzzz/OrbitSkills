@@ -5,14 +5,18 @@
 
   # Keeps old configs updated with new defaults.
   # Leave this value as-is.
-  balance-version: 48
+  balance-version: 51
 
   # Maximum total SP a player can have.
-  max-total-stat-points: 100000
+  max-total-stat-points: 10000
 
   # Highest level players can reach.
   # Higher max-level spreads SP rewards across more levels.
-  max-level: 1000
+  max-level: 100
+
+  # 0.5 = SP per level rises gradually: about 50 early, 100 middle, 150 late.
+  # 1.0 = every level gives the same amount.
+  stat-point-curve-linear-weight: 0.5
 
   # How often player data is saved.
   save-interval-seconds: 180
@@ -21,6 +25,34 @@
   # The plugin can still show higher HP, like 4000, safely.
   # Keep 1024 for the safest setup.
   physical-health-cap: 1024
+
+  # Locks the heart bar to a fixed number of hearts.
+  # Keep true so high HP never draws a long row of hearts on screen.
+  # Set false only if another plugin already controls the heart display.
+  health-display-scaling: true
+
+  # How many hearts the locked heart bar shows. 20 hearts = the vanilla row.
+  health-display-hearts: 20.0
+
+  # How often the heart bar lock is re-applied, in ticks. 20 ticks = 1 second.
+  # Some forks, like UniverseSpigot, drop the lock after a hit and briefly show
+  # extra hearts. This repeating refresh puts the bar back.
+  # 0 = off. Raise this value if you want fewer refreshes.
+  health-display-refresh-ticks: 40
+
+  # How many ticks after an armor change the heart bar keeps being re-applied.
+  # Equipment is not synced to the client on the tick it changes, and the packet
+  # that carries it also carries the raw max health the heart bar is drawn from.
+  # Refreshing on every tick of this window means a correction always follows it,
+  # whichever tick it lands on. Raise this if equipping armor still flickers.
+  health-display-equipment-ticks: 10
+
+  # How long a one-off actionbar notice holds the slot, in milliseconds.
+  # The HP/EXP bar below refreshes every second, which is fast enough to wipe a
+  # notice before it can be read. During this window the repeating bar stays
+  # quiet so Alchemy heals, race skills, and EXP gains stay visible.
+  # 0 = off, notices get overwritten as before.
+  actionbar-notice-ms: 2500
 
   # Shows short EXP progress when the repeating actionbar is off.
   actionbar-progress: true
@@ -33,14 +65,6 @@ actionbar: true
 # Health here shows the full RPG HP, not the smaller Minecraft HP limit.
 actionbar-text: "&#FF3972❤ {health_formatted}&#6D7890/&#F7F3FF{max_health_formatted}      &#FFE7A3✦ {exp_formatted}&#6D7890/&#F7F3FF{needed_exp_formatted}"
 
-balance:
-  # Main balance preset.
-  # casual   = faster stat growth for relaxed servers.
-  # balanced = default public server curve.
-  # hard     = slower stat growth for long-term servers.
-  # Level EXP speed is changed in level.yml.
-  profile: balanced
-
 modules:
   # Turn systems on or off for the whole server.
   # stats = stat point bonuses.
@@ -52,6 +76,79 @@ modules:
   class: true
   race: true
   clan: true
+
+# Missing keys are added automatically on update. Existing custom values stay unchanged.
+# 10,000 total SP / 6 stats = about 1,667 points for 100% base stat power.
+stats:
+  damage:
+    stat-percent-multiplier-enabled: false
+    raw-damage-per-100-percent: 24.0
+    preview-target-health: 1000.0
+    pvp-min-health-percent-per-hit: 3.0
+    effective-cap-percent: 380.0
+    overflow-efficiency-percent: 25.0
+  archery:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 25.0
+    max-bonus-percent: 10000.0
+    raw-damage-per-100-percent: 105.0
+    defense-penetration-per-100-percent: 3.5
+    max-health-damage-per-100-percent: 0.0
+  fighting:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 25.0
+    max-bonus-percent: 10000.0
+    raw-damage-per-100-percent: 120.0
+    defense-penetration-per-100-percent: 3.5
+    max-health-damage-per-100-percent: 0.0
+    mace-breach-defense-reduction-percent-per-level: 15.0
+  power:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 25.0
+    max-bonus-percent: 10000.0
+    raw-damage-per-100-percent: 130.0
+    defense-penetration-per-100-percent: 4.5
+    defense-penetration-cap-percent: 40.0
+    max-health-damage-per-100-percent: 0.0
+  defense:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 15.0
+    max-bonus-percent: 10000.0
+    effective-cap-percent: 40.0
+    absolute-cap-percent: 92.0
+    health-per-point: 0.1
+    health-flat-effective-cap: 500.0
+    health-flat-overflow-efficiency-percent: 10.0
+  health:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 20.0
+    max-bonus-percent: 10000.0
+    health-per-point: 0.588
+    effective-cap-percent: 0.0
+    absolute-effective-cap: 10000.0
+    flat-effective-cap: 980.0
+    flat-overflow-efficiency-percent: 20.0
+  alchemy:
+    bonus-per-point-percent: 0.06
+    soft-cap-percent: 100.0
+    overflow-efficiency-percent: 12.0
+    max-bonus-percent: 10000.0
+    max-health-heal-per-100-percent: 0.45
+    food-heal-efficiency-percent: 50.0
+    low-health-regen-tier-1-percent: 40.0
+    low-health-regen-tier-2-percent: 65.0
+    low-health-regen-tier-3-percent: 85.0
+    low-health-regen-cooldown-ms: 22000
+    low-health-regen-base-ticks: 25
+    low-health-regen-ticks-per-bonus-percent: 0.05
+    low-health-regen-max-extra-ticks: 20.0
+    low-health-regen-bonus-per-amplifier: 9999.0
+    low-health-regen-max-amplifier: 1
 
 auto-get:
   # Gives better rarity after too many unlucky rerolls.
@@ -94,18 +191,44 @@ auto-reroll:
 rarity-display:
   # Display names and colors used in menus/messages.
   # This changes only the text and color, not the roll chance.
-  common: { name: Common, color: "&#D7DEE8" }
-  uncommon: { name: Uncommon, color: "&#B8F7D4" }
-  rare: { name: Rare, color: "&#A7E8FF" }
-  epic: { name: Epic, color: "&#C7B8FF" }
-  mythic: { name: Mythic, color: "&#FFD6A5" }
+  common:
+    name: Common
+    color: "&#D7DEE8"
+  uncommon:
+    name: Uncommon
+    color: "&#B8F7D4"
+  rare:
+    name: Rare
+    color: "&#A7E8FF"
+  epic:
+    name: Epic
+    color: "&#C7B8FF"
+  mythic:
+    name: Mythic
+    color: "&#FFD6A5"
 
 rank-reroll:
   # Higher weight means easier to get. F is common, SSS is very rare.
   # Bigger weight = bigger chance.
-  weights: { F: 230000, D: 135000, C: 70000, B: 30000, A: 10000, S: 2500, SS: 600, SSS: 80 }
+  weights:
+    F: 230000
+    D: 135000
+    C: 70000
+    B: 30000
+    A: 10000
+    S: 2500
+    SS: 600
+    SSS: 80
   # Rarity name shown for each class rank.
-  rarity: { F: COMMON, D: COMMON, C: UNCOMMON, B: RARE, A: EPIC, S: MYTHIC, SS: MYTHIC, SSS: MYTHIC }
+  rarity:
+    F: COMMON
+    D: COMMON
+    C: UNCOMMON
+    B: RARE
+    A: EPIC
+    S: MYTHIC
+    SS: MYTHIC
+    SSS: MYTHIC
   colors:
     # Rank colors shown in menus and profile text.
     F: "&#9AA4B2"

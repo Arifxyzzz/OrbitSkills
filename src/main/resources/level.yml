@@ -1,14 +1,14 @@
 settings:
   # Keeps old level configs updated with new defaults.
   # Leave this value as-is.
-  exp-balance-version: 10
+  exp-balance-version: 12
 
   # Controls how much EXP each level needs.
   # Raise exp-multiplier for slower leveling.
   # Raise exp-power if higher levels should become much harder.
-  exp-base: 100.0
-  exp-power: 1.537
-  exp-multiplier: 84.2
+  exp-base: 100.0 # Minimum/base EXP added to every level requirement.
+  exp-power: 1.5 # Controls how sharply EXP grows at higher levels; higher = steeper late game.
+  exp-multiplier: 759.2195 # Scales the whole curve; higher = more EXP required at all levels.
 
   # Command used when level rewards give money.
   # Needs an economy plugin with this command.
@@ -19,7 +19,8 @@ settings:
   default-reward-lore:
     - "&#B8F7D4✦ SP &#F7F3FF{stats_points}"
     - "&#C7B8FF✦ Races &#F7F3FF{race_fragments} &#6D7890| &#A7E8FFClass &#F7F3FF{class_fragments}"
-    - "&#FFD6A5✦ Clans &#F7F3FF{clan_fragments} &#6D7890| &#FFE7A3Items &#F7F3FF{items}"
+    - "&#FFD6A5✦ Clans &#F7F3FF{clan_fragments}"
+    - "&#FFE7A3✦ Items &#F7F3FF{items}"
 
 level-up-effects:
   # Visual feedback when a player reaches a new level.

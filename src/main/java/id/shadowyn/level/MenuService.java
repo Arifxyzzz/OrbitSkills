@@ -931,6 +931,16 @@ public final class MenuService implements Listener {
         vars.put("warden", String.valueOf(fragmentDrop("WARDEN", FragmentService.RACES, 6)));
         vars.put("stats_per_level", String.valueOf(plugin.levels().levelPointReward()));
         vars.put("stat_point_cap", String.valueOf(plugin.getConfig().getInt("settings.max-total-stat-points", 5000)));
+        int maxLevel = plugin.maxLevel();
+        vars.put("max_level", String.valueOf(maxLevel));
+        vars.put("sp_early", String.valueOf(plugin.levels().levelPointReward(1)));
+        vars.put("sp_mid", String.valueOf(plugin.levels().levelPointReward(Math.max(1, maxLevel / 2))));
+        vars.put("sp_late", String.valueOf(plugin.levels().levelPointReward(maxLevel)));
+        long totalLevelExp = 0L;
+        for (int level = 1; level < maxLevel; level++) {
+            totalLevelExp = Math.addExact(totalLevelExp, plugin.levels().neededExp(level));
+        }
+        vars.put("total_level_exp", plugin.formatCompact(totalLevelExp));
         vars.put("clan_cost", String.valueOf(plugin.fragments().cost(FragmentService.CLANS, 3)));
         vars.put("race_cost", String.valueOf(plugin.fragments().cost(FragmentService.RACES, 3)));
         vars.put("rank_cost", String.valueOf(plugin.fragments().cost(FragmentService.STATS_CLASS, 1)));

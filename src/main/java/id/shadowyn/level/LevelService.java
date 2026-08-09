@@ -91,10 +91,10 @@ public final class LevelService {
             player.sendMessage(Text.s(plugin.msg("level-up").replace("%level%", String.valueOf(profile.level()))));
         }
         if (profile.skillActionbar() && plugin.getConfig().getBoolean("settings.actionbar-progress", true) && !plugin.actionbarEnabled()) {
-            player.sendActionBar(Text.c(plugin.msg("exp-gain")
+            plugin.sendNoticeActionBar(player, plugin.msg("exp-gain")
                     .replace("%exp%", String.valueOf(amount))
                     .replace("%current%", String.valueOf(profile.exp()))
-                    .replace("%needed%", String.valueOf(neededExp(profile.level())))));
+                    .replace("%needed%", String.valueOf(neededExp(profile.level()))));
         }
     }
 
@@ -134,12 +134,16 @@ public final class LevelService {
     }
 
     public int levelPointReward() {
-        int cap = plugin.getConfig().getInt("settings.max-total-stat-points", 5000);
-        return Math.max(1, (int) Math.ceil(cap / (double) Math.max(1, plugin.maxLevel())));
+        return Math.max(1, pointBudgetForLevel(1));
     }
 
     public int levelPointReward(Player player) {
         return levelPointReward();
+    }
+
+    public int levelPointReward(int level) {
+        if (level <= 0) return 0;
+        return Math.max(0, pointBudgetForLevel(level) - pointBudgetForLevel(level - 1));
     }
 
     public int totalStats(PlayerProfile profile) {
@@ -149,7 +153,10 @@ public final class LevelService {
     public int pointBudgetForLevel(int level) {
         int cap = plugin.getConfig().getInt("settings.max-total-stat-points", 5000);
         int completedLevels = Math.max(0, Math.min(plugin.maxLevel(), level));
-        return Math.min(cap, (int) Math.round(cap * (completedLevels / (double) Math.max(1, plugin.maxLevel()))));
+        double progress = completedLevels / (double) Math.max(1, plugin.maxLevel());
+        double linearWeight = plugin.getConfig().getDouble("settings.stat-point-curve-linear-weight", 0.5);
+        double curved = linearWeight * progress + (1.0 - linearWeight) * progress * progress;
+        return Math.min(cap, (int) Math.round(cap * curved));
     }
 
     public int pointBudgetFor(Player player, PlayerProfile profile) {
@@ -281,7 +288,7 @@ public final class LevelService {
         List<String> configuredLore = plugin.levelConfig().getStringList("levels." + level + ".lore");
         if (!configuredLore.isEmpty()) {
             return configuredLore.stream()
-                    .map(line -> line.replace("%orbitskills_stats_perlevel%", String.valueOf(levelPointReward())))
+                    .map(line -> line.replace("%orbitskills_stats_perlevel%", String.valueOf(levelPointReward(level))))
                     .toList();
         }
         String path = "levels." + level + ".rewards.";
@@ -290,9 +297,28 @@ public final class LevelService {
                 .map(line -> rewardPlaceholders(line, level, 1.0))
                 .toList();
         List<String> template = plugin.levelConfig().getStringList("settings.default-reward-lore");
-        if (!template.isEmpty()) return template.stream()
-                .map(line -> rewardPlaceholders(line, level, 1.0))
-                .toList();
+        if (!template.isEmpty()) {
+            List<String> lore = new ArrayList<>();
+            List<String> items = plugin.levelConfig().getStringList("levels." + level + ".rewards.items");
+            if (items.isEmpty()) items = milestoneItems(level);
+            for (String line : template) {
+                if (!line.contains("{items}")) {
+                    lore.add(rewardPlaceholders(line, level, 1.0));
+                    continue;
+                }
+                String prefix = line.substring(0, line.indexOf("{items}"));
+                if (items.isEmpty()) {
+                    lore.add(rewardPlaceholders(prefix + "None", level, 1.0));
+                } else {
+                    boolean first = true;
+                    for (String item : items) {
+                        lore.add(rewardPlaceholders((first ? prefix : "&#6D7890  › &#F7F3FF") + itemSummary(List.of(item)), level, 1.0));
+                        first = false;
+                    }
+                }
+            }
+            return lore;
+        }
         int money = plugin.levelConfig().getInt("every-level.money", 0) + plugin.levelConfig().getInt(path + "money", 0) + milestoneMoney(level);
         int clanFragments = fragmentRewardAmount("every-level.", FragmentService.RACES,
                 plugin.levelConfig().getInt("every-level.clan-fragments", plugin.levelConfig().getInt("every-level.fragments", 0)))
@@ -304,19 +330,18 @@ public final class LevelService {
                 plugin.levelConfig().getInt(path + "rank-fragments", 0));
         List<String> items = plugin.levelConfig().getStringList(path + "items");
         if (items.isEmpty()) items = milestoneItems(level);
-        String itemLine = "&8- &7Items: &fNone";
-        if (!items.isEmpty()) {
-            itemLine = "&8- &7Items: &f" + itemSummary(items);
-        }
-        return List.of(
+        List<String> lore = new ArrayList<>(List.of(
                 plugin.langLine(),
                 "&#FFB84DReward",
                 "&8- &7Money: &f" + money,
                 "&8- &7Race Frag: &#C77DFF" + clanFragments + "x",
                 "&8- &7Class Frag: &#5CC8FF" + rankFragments + "x",
-                "&8- &7SP: &#63F29B" + levelPointReward(),
-                itemLine
-        );
+            "&8- &7SP: &#63F29B" + levelPointReward(level),
+            "&8- &7Items:"
+        ));
+        if (items.isEmpty()) lore.add("&8  › &fNone");
+        else for (String item : items) lore.add("&8  › &f" + itemSummary(List.of(item)));
+        return lore;
     }
 
     private String rewardPlaceholders(String line, int level, double multiplier) {
@@ -353,9 +378,9 @@ public final class LevelService {
                 .replace("{fragment_min}", String.valueOf(fragmentMin))
                 .replace("{fragment_max}", String.valueOf(fragmentMax))
                 .replace("{fragment_types}", fragmentTypes.isEmpty() ? "Races | Class | Clans" : String.join(" | ", fragmentTypes))
-                .replace("{stats_points}", String.valueOf(levelPointReward()))
+                .replace("{stats_points}", String.valueOf(levelPointReward(level)))
                 .replace("{items}", items.isEmpty() ? "None" : itemSummary(items))
-                .replace("%orbitskills_stats_perlevel%", String.valueOf(levelPointReward()));
+                .replace("%orbitskills_stats_perlevel%", String.valueOf(levelPointReward(level)));
     }
 
     private int fragmentRewardAmount(String path, String fragment, int fallback) {
@@ -552,7 +577,9 @@ public final class LevelService {
         profile.stat(type, profile.stat(type) + allowed);
         plugin.applyStats(player);
         plugin.data().save();
-        player.sendMessage(plugin.msg("stat-added").replace("%stat%", statName(type) + " +" + allowed));
+        player.sendMessage(plugin.msg("stat-added")
+            .replace("%stat%", statName(type))
+            .replace("%amount%", String.valueOf(allowed)));
         return true;
     }
 
@@ -564,6 +591,9 @@ public final class LevelService {
         profile.statsPoint(profile.statsPoint() + removed);
         plugin.applyStats(player);
         plugin.data().save();
+        player.sendMessage(plugin.msg("stat-refunded")
+            .replace("%stat%", statName(type))
+            .replace("%amount%", String.valueOf(removed)));
         return true;
     }
 

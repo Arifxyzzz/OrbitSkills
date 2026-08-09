@@ -463,14 +463,14 @@ public final class ShadowynCommand implements CommandExecutor, TabCompleter {
         if (args.length == 2 && args[0].equalsIgnoreCase("set")) return filter(List.of("level", "exp", "point", "race", "clan", "class", "stats"), args[1]);
         if (args.length == 3 && args[0].equalsIgnoreCase("set") && isClassArg(args[1])) {
             List<String> values = new ArrayList<>(statNames());
-            values.addAll(knownPlayers());
+            values.addAll(onlinePlayers());
             return filter(values, args[2]);
         }
         if (args.length == 4 && args[0].equalsIgnoreCase("set") && isClassArg(args[1])) {
             return StatType.from(args[2]) == null ? filter(statNames(), args[3]) : filter(rankNames(), args[3]);
         }
         if (args.length == 5 && args[0].equalsIgnoreCase("set") && isClassArg(args[1])) return filter(rankNames(), args[4]);
-        if (args.length == 3 && args[0].equalsIgnoreCase("set")) return filter(knownPlayers(), args[2]);
+        if (args.length == 3 && args[0].equalsIgnoreCase("set")) return filter(onlinePlayers(), args[2]);
         if (args.length == 4 && args[0].equalsIgnoreCase("set") && args[1].equalsIgnoreCase("race")) return filter(plugin.clans().keys(), args[3]);
         if (args.length == 4 && args[0].equalsIgnoreCase("set") && args[1].equalsIgnoreCase("clan")) return filter(plugin.clans().guildKeys(), args[3]);
         if (args.length == 2 && !args[0].equalsIgnoreCase("placeholder") && !args[0].equalsIgnoreCase("reload")) {
@@ -497,14 +497,6 @@ public final class ShadowynCommand implements CommandExecutor, TabCompleter {
         List<String> players = new ArrayList<>();
         players.add("*");
         players.addAll(onlinePlayers());
-        return players;
-    }
-
-    private List<String> knownPlayers() {
-        List<String> players = onlinePlayers();
-        for (PlayerProfile profile : plugin.data().allProfiles()) {
-            if (!players.contains(profile.name())) players.add(profile.name());
-        }
         return players;
     }
 

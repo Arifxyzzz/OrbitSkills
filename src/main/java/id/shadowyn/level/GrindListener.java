@@ -18,6 +18,7 @@ import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.SmallFireball;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -25,17 +26,21 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityBreedEvent;
 import org.bukkit.event.entity.EntityDeathEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.EntityRegainHealthEvent;
 import org.bukkit.event.entity.EntityTameEvent;
 import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.inventory.BrewEvent;
+import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerAdvancementDoneEvent;
 import org.bukkit.event.player.PlayerFishEvent;
 import org.bukkit.event.player.PlayerHarvestBlockEvent;
+import org.bukkit.event.player.PlayerItemBreakEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerShearEntityEvent;
 import org.bukkit.event.player.PlayerToggleSprintEvent;
@@ -58,11 +63,61 @@ public final class GrindListener implements Listener {
     public void join(PlayerJoinEvent event) {
         plugin.data().get(event.getPlayer());
         plugin.applyStats(event.getPlayer());
+        plugin.scheduleHealthDisplayRefresh(event.getPlayer());
     }
 
     @EventHandler
     public void respawn(PlayerRespawnEvent event) {
         plugin.getServer().getScheduler().runTask(plugin, () -> plugin.applyStats(event.getPlayer()));
+    }
+
+    /**
+     * A world change resends the player's health packets, so the fixed heart bar has to be
+     * re-applied afterwards or the client falls back to one heart per real HP point.
+     */
+    @EventHandler
+    public void changeWorld(PlayerChangedWorldEvent event) {
+        plugin.scheduleHealthDisplayRefresh(event.getPlayer());
+    }
+
+    /**
+     * Armor with max-health modifiers makes the server resend health when it breaks or
+     * loses durability, which drops the heart scale on some forks. Only armor slots
+     * matter here, so held tools are ignored to keep this off the hot path.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void itemDamage(PlayerItemDamageEvent event) {
+        if (!isArmor(event.getItem().getType())) return;
+        plugin.scheduleHealthDisplayRefreshAfterEquipment(event.getPlayer());
+    }
+
+    @EventHandler
+    public void itemBreak(PlayerItemBreakEvent event) {
+        if (!isArmor(event.getBrokenItem().getType())) return;
+        plugin.scheduleHealthDisplayRefreshAfterEquipment(event.getPlayer());
+    }
+
+    /**
+     * Health Boost and Absorption change max health directly, so gaining or losing one
+     * resends health the same way armor does.
+     */
+    @EventHandler(ignoreCancelled = true)
+    public void potionEffectChange(EntityPotionEffectEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        PotionEffectType type = event.getModifiedType();
+        if (type == null) return;
+        if (!type.equals(PotionEffectType.HEALTH_BOOST) && !type.equals(PotionEffectType.ABSORPTION)) return;
+        plugin.scheduleHealthDisplayRefresh(player);
+    }
+
+    private boolean isArmor(Material material) {
+        String name = material.name();
+        return name.endsWith("_HELMET")
+                || name.endsWith("_CHESTPLATE")
+                || name.endsWith("_LEGGINGS")
+                || name.endsWith("_BOOTS")
+                || name.equals("TURTLE_HELMET")
+                || name.equals("ELYTRA");
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -192,7 +247,8 @@ public final class GrindListener implements Listener {
                 event.getEntity().setFireTicks(Math.max(event.getEntity().getFireTicks(), plugin.getConfig().getInt("clan-effects.fire-aspect-ticks", 80)));
             }
             if (plugin.racesEnabled()) applyOffensiveRaceEffects(event, damager, profile, projectile);
-            if (plugin.racesEnabled()) applyOffensiveClanEffects(event, damager, profile, projectile);
+            // Gates per identity inside: race effects need the race module, clan effects the clan module.
+            if (plugin.racesEnabled() || plugin.clansEnabled()) applyOffensiveClanEffects(event, damager, profile, projectile);
             double every = plugin.sourceDouble("exp-sources.combat.damage-exp-every", 10.0);
             int baseExp = plugin.sourceInt("exp-sources.combat.exp", 2);
             if (event.getFinalDamage() >= every) {
@@ -210,12 +266,26 @@ public final class GrindListener implements Listener {
             boolean projectile = event.getDamager() instanceof AbstractArrow;
             event.setDamage(event.getDamage() * plugin.incomingMultiplier(victim, damager, projectile));
             if (plugin.racesEnabled()) applyDefensiveRaceEffects(event, victim, damager);
-            if (plugin.racesEnabled()) applyDefensiveClanEffects(event, victim, damager);
+            if (plugin.racesEnabled() || plugin.clansEnabled()) applyDefensiveClanEffects(event, victim, damager);
             if (damager != null) {
                 event.setDamage(Math.max(event.getDamage(), minPvpHitDamage(victim, damager, projectile)));
             }
             event.setDamage(plugin.toPhysicalHealthAmount(victim, event.getDamage()));
         }
+    }
+
+    /**
+     * Queues a heart-bar resync after damage.
+     *
+     * <p>The resync must not run inside the event: the damage has not been applied to the
+     * player yet, so it would push the pre-hit health and the client would render the
+     * real hit a moment later as a second, phantom one. Next tick the server values are
+     * settled and the resync reports the truth.
+     */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void refreshHeartsOnDamage(EntityDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        plugin.scheduleHealthDisplayRefresh(player);
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -365,11 +435,14 @@ public final class GrindListener implements Listener {
     @EventHandler(ignoreCancelled = true)
     public void heal(EntityRegainHealthEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (!isPotionHeal(event.getRegainReason())) return;
+        if (!isAlchemyHeal(event.getRegainReason())) return;
         PlayerProfile profile = plugin.data().get(player);
         double bonus = plugin.levels().potionHealBonusPercent(profile);
         double base = event.getAmount();
-        double extra = bonus <= 0 ? 0.0 : base * bonus / 100.0;
+        double sourceEfficiency = event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED
+                ? plugin.getConfig().getDouble("stats.alchemy.food-heal-efficiency-percent", 50.0) / 100.0
+                : 1.0;
+        double extra = bonus <= 0 ? 0.0 : base * bonus / 100.0 * Math.max(0.0, sourceEfficiency);
         if (bonus > 0 && event.getRegainReason() == EntityRegainHealthEvent.RegainReason.MAGIC) {
             double maxHealthHealPer100 = plugin.getConfig().getDouble("stats.alchemy.max-health-heal-per-100-percent", 3.0);
             extra += plugin.effectiveMaxHealth(profile) * (bonus / 100.0) * (Math.max(0.0, maxHealthHealPer100) / 100.0);
@@ -379,12 +452,21 @@ public final class GrindListener implements Listener {
         if (bonus > 0 && plugin.getConfig().getBoolean("clan-effects.alchemy-heal-visual", true)
                 && ready(player.getUniqueId(), "alchemy_heal_visual", plugin.getConfig().getLong("clan-effects.alchemy-heal-visual-cooldown-ms", 700))) {
             player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.2, 0), 2, 0.35, 0.25, 0.35, 0.0);
-            player.sendActionBar(Text.c("&aPotion Heal +" + oneDecimal(extra) + " HP &8(&f" + oneDecimal(bonus) + "%&8)"));
+            String source = event.getRegainReason() == EntityRegainHealthEvent.RegainReason.SATIATED ? "Food Heal" : "Potion Heal";
+            plugin.sendNoticeActionBar(player, "&a" + source + " +" + oneDecimal(extra) + " HP &8(&f" + oneDecimal(bonus) + "% Alchemy&8)");
         }
     }
 
-    private boolean isPotionHeal(EntityRegainHealthEvent.RegainReason reason) {
-        return reason == EntityRegainHealthEvent.RegainReason.MAGIC;
+    /** Queues a heart-bar resync after healing; see {@link #refreshHeartsOnDamage}. */
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void refreshHeartsOnHeal(EntityRegainHealthEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        plugin.scheduleHealthDisplayRefresh(player);
+    }
+
+    private boolean isAlchemyHeal(EntityRegainHealthEvent.RegainReason reason) {
+        return reason == EntityRegainHealthEvent.RegainReason.MAGIC
+                || reason == EntityRegainHealthEvent.RegainReason.SATIATED;
     }
 
     @EventHandler(ignoreCancelled = true)
@@ -467,60 +549,60 @@ public final class GrindListener implements Listener {
     }
 
     private void applyOffensiveClanEffects(EntityDamageByEntityEvent event, Player damager, PlayerProfile profile, boolean projectile) {
-        String clan = normalizedClan(profile);
-        if (clan.equals("DWARF") && isTool(damager.getInventory().getItemInMainHand().getType())) {
+        if (hasIdentity(profile, "DWARF") && isTool(damager.getInventory().getItemInMainHand().getType())) {
             double percent = plugin.getConfig().getDouble("clan-effects.dwarf-tool-damage-percent", 10.0);
             event.setDamage(event.getDamage() * (1.0 + percent / 100.0));
         }
         if (!(event.getEntity() instanceof LivingEntity target)) return;
-        switch (clan) {
-            case "ASSASSIN" -> assassinStun(damager, target, projectile);
-            case "KITSUNE" -> kitsuneSpiritTrick(event, damager, target);
-            case "VAMPIRE" -> vampireLifesteal(event, damager);
-            case "PHOENIX" -> phoenixFireball(event, damager, target, projectile);
-            case "SHADOW" -> shadowThunder(event, damager, target, projectile);
-            case "RAIKAGE" -> raikageStrike(event, damager, target, projectile);
-            case "FROSTBORNE" -> frostborneChill(damager, target);
-            case "ONI" -> oniCleave(event, damager, target, projectile);
-            case "PLAGUE" -> plagueTouch(damager, target);
-            case "STORMCALLER" -> stormcallerBolt(event, damager, target);
-            case "BLAZEFURY" -> blazeFuryNova(event, damager, target, projectile);
-            case "WARDENBORN" -> wardenbornRoar(event, damager, target, projectile);
-            case "ASTRAL" -> astralMark(event, damager, target);
-            case "NECROMANCER" -> necromancerWither(event, damager, target);
-            case "GOLEM" -> golemQuake(event, damager, target, projectile);
-            default -> {
+        for (String name : identities(profile)) {
+            switch (name) {
+                case "ASSASSIN" -> assassinStun(damager, target, projectile);
+                case "KITSUNE" -> kitsuneSpiritTrick(event, damager, target);
+                case "VAMPIRE" -> vampireLifesteal(event, damager);
+                case "PHOENIX" -> phoenixFireball(event, damager, target, projectile);
+                case "SHADOW" -> shadowThunder(event, damager, target, projectile);
+                case "RAIKAGE" -> raikageStrike(event, damager, target, projectile);
+                case "FROSTBORNE" -> frostborneChill(damager, target);
+                case "ONI" -> oniCleave(event, damager, target, projectile);
+                case "PLAGUE" -> plagueTouch(damager, target);
+                case "STORMCALLER" -> stormcallerBolt(event, damager, target);
+                case "BLAZEFURY" -> blazeFuryNova(event, damager, target, projectile);
+                case "WARDENBORN" -> wardenbornRoar(event, damager, target, projectile);
+                case "ASTRAL" -> astralMark(event, damager, target);
+                case "NECROMANCER" -> necromancerWither(event, damager, target);
+                case "GOLEM" -> golemQuake(event, damager, target, projectile);
+                default -> {
+                }
             }
         }
     }
 
     private void applyDefensiveClanEffects(EntityDamageByEntityEvent event, Player victim, Player damager) {
         PlayerProfile profile = plugin.data().get(victim);
-        String clan = normalizedClan(profile);
-        if (clan.equals("DWARF") && hasArmor(victim)) {
+        if (hasIdentity(profile, "DWARF") && hasArmor(victim)) {
             double reduction = plugin.getConfig().getDouble("clan-effects.dwarf-armor-reduction-percent", 8.0);
             event.setDamage(event.getDamage() * (1.0 - Math.max(0.0, reduction) / 100.0));
         }
-        if (clan.equals("PHOENIX") && damager != null && ready(victim.getUniqueId(), "phoenix_reflect", plugin.getConfig().getLong("clan-effects.phoenix-reflect-cooldown-ms", 5000))) {
+        if (hasIdentity(profile, "PHOENIX") && damager != null && ready(victim.getUniqueId(), "phoenix_reflect", plugin.getConfig().getLong("clan-effects.phoenix-reflect-cooldown-ms", 5000))) {
             damager.setFireTicks(Math.max(damager.getFireTicks(), plugin.getConfig().getInt("clan-effects.phoenix-reflect-fire-ticks", 80)));
             double damage = plugin.getConfig().getDouble("clan-effects.phoenix-reflect-damage", 2.0);
             if (damage > 0) damager.damage(damage, victim);
         }
-        if (clan.equals("SLIME") && damager != null && ready(victim.getUniqueId(), "slime_rebound", plugin.getConfig().getLong("clan-effects.slime-rebound-cooldown-ms", 5500))) {
+        if (hasIdentity(profile, "SLIME") && damager != null && ready(victim.getUniqueId(), "slime_rebound", plugin.getConfig().getLong("clan-effects.slime-rebound-cooldown-ms", 5500))) {
             double reduction = plugin.getConfig().getDouble("clan-effects.slime-rebound-reduction-percent", 28.0);
             event.setDamage(event.getDamage() * (1.0 - Math.max(0.0, reduction) / 100.0));
             Vector knock = damager.getLocation().toVector().subtract(victim.getLocation().toVector()).normalize().multiply(0.8).setY(0.35);
             damager.setVelocity(knock);
             victim.getWorld().spawnParticle(Particle.ITEM_SLIME, victim.getLocation().add(0, 1.0, 0), 18, 0.5, 0.45, 0.5, 0.02);
         }
-        if (clan.equals("GOLEM") && hasArmor(victim)) {
+        if (hasIdentity(profile, "GOLEM") && hasArmor(victim)) {
             double reduction = plugin.getConfig().getDouble("clan-effects.golem-armor-reduction-percent", 10.0);
             event.setDamage(event.getDamage() * (1.0 - Math.max(0.0, reduction) / 100.0));
         }
-        if (clan.equals("AETHER")) {
+        if (hasIdentity(profile, "AETHER")) {
             victim.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, plugin.getConfig().getInt("clan-effects.aether-slowfall-ticks", 60), 0, true, false));
         }
-        if (clan.equals("VOIDWALKER") && damager != null && ready(victim.getUniqueId(), "void_step", plugin.getConfig().getLong("clan-effects.void-step-cooldown-ms", 9000))) {
+        if (hasIdentity(profile, "VOIDWALKER") && damager != null && ready(victim.getUniqueId(), "void_step", plugin.getConfig().getLong("clan-effects.void-step-cooldown-ms", 9000))) {
             event.setDamage(event.getDamage() * (1.0 - plugin.getConfig().getDouble("clan-effects.void-step-reduction-percent", 40.0) / 100.0));
             victim.getWorld().spawnParticle(Particle.PORTAL, victim.getLocation().add(0, 1.0, 0), 45, 0.5, 0.8, 0.5, 0.08);
             victim.teleport(damager.getLocation().clone().add(damager.getLocation().getDirection().multiply(-1.6)));
@@ -617,7 +699,7 @@ public final class GrindListener implements Listener {
                 controlled++;
             }
         }
-        if (controlled > 0) target.sendActionBar(Text.c("&2Necromancer command &8- &f" + controlled + " monster mengejarmu"));
+        if (controlled > 0) plugin.sendNoticeActionBar(target, "&2Necromancer command &8- &f" + controlled + " monster mengejarmu");
     }
 
     private void golemQuake(EntityDamageByEntityEvent event, Player damager, LivingEntity target, boolean projectile) {
@@ -650,6 +732,7 @@ public final class GrindListener implements Listener {
         double max = actualMaxHealth(player);
         double health = Math.max(0.0, player.getHealth());
         player.setHealth(Math.min(max, health + plugin.toPhysicalHealthAmount(player, amount)));
+        plugin.scheduleHealthDisplayRefresh(player);
     }
 
     private double actualMaxHealth(Player player) {
@@ -695,11 +778,48 @@ public final class GrindListener implements Listener {
         target.addPotionEffect(new PotionEffect(PotionEffectType.WITHER, debuffTicks, 0, true, false));
         damager.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, plugin.getConfig().getInt("clan-effects.shadow-buff-ticks", 80), 1, true, false));
         damager.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, plugin.getConfig().getInt("clan-effects.shadow-buff-ticks", 80), 0, true, false));
-        damager.sendActionBar(Text.c("&5Shadow Thunder &8x&f" + charges));
+        plugin.sendNoticeActionBar(damager, "&5Shadow Thunder &8x&f" + charges);
     }
 
     private String normalizedClan(PlayerProfile profile) {
-        return profile.race().replaceAll("[^A-Za-z0-9_]", "").toUpperCase(java.util.Locale.ROOT);
+        return normalizeName(profile.race());
+    }
+
+    private String normalizedGuildClan(PlayerProfile profile) {
+        return normalizeName(profile.guildClan());
+    }
+
+    private String normalizeName(String raw) {
+        return raw == null ? "" : raw.replaceAll("[^A-Za-z0-9_]", "").toUpperCase(java.util.Locale.ROOT);
+    }
+
+    /**
+     * Names in the effect switches come from two separate pools: races (Races.yml) and
+     * guild clans (Clans.yml). Matching only the race meant clan-only effects such as
+     * ONI or RAIKAGE could never fire, and matching only the clan would break race-only
+     * effects such as VAMPIRE lifesteal. Both identities are checked, and each is only
+     * used when its own module is enabled.
+     */
+    private boolean hasIdentity(PlayerProfile profile, String name) {
+        if (plugin.racesEnabled() && normalizedClan(profile).equals(name)) return true;
+        return plugin.clansEnabled() && normalizedGuildClan(profile).equals(name);
+    }
+
+    /**
+     * The race and guild clan a player currently has, skipping disabled modules, blanks,
+     * and NONE. Returns one entry when both names are the same so an effect that exists
+     * in both pools does not fire twice on a single hit.
+     */
+    private java.util.List<String> identities(PlayerProfile profile) {
+        java.util.List<String> names = new java.util.ArrayList<>(2);
+        if (plugin.racesEnabled()) addIdentity(names, normalizedClan(profile));
+        if (plugin.clansEnabled()) addIdentity(names, normalizedGuildClan(profile));
+        return names;
+    }
+
+    private void addIdentity(java.util.List<String> names, String name) {
+        if (name.isEmpty() || name.equals("NONE") || names.contains(name)) return;
+        names.add(name);
     }
 
     private String oneDecimal(double value) {
