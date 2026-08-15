@@ -6,7 +6,12 @@ author: Shadowyn Studio
 website: https://www.shadowyn.id
 softdepend:
   - PlaceholderAPI
+  - ProtocolLib
+  - packetevents
   - Vault
+  - MythicMobs
+  - MMOItems
+  - MythicLib
 commands:
   orbitskills:
     description: Main OrbitSkills command and menu shortcuts.

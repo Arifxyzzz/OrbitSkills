@@ -139,9 +139,41 @@ public final class GrindListener implements Listener {
             if (event.getEntity().getScoreboardTags().contains("boss") || event.getEntity().getName().toLowerCase().contains("boss")) {
                 exp = plugin.sourceInt("exp-sources.mob-kill.bosses", 60);
             }
+            exp = mythicExp(event, exp);
         }
         dropFragments(event);
         plugin.levels().addExp(killer, exp);
+    }
+
+    /**
+     * Replaces the vanilla EXP reward when the dead entity was a MythicMob.
+     *
+     * <p>Without this, every custom mob pays out whatever its base entity pays: a scripted
+     * boss riding on a zombie is worth exactly one zombie. Server owners name the mob in
+     * {@code exp-sources.mob-kill.mythic.<internal name>} to price it themselves; anything
+     * they have not named falls back to the vanilla figure, optionally scaled by the level
+     * MythicMobs spawned it at, so a level 40 mob is worth more than a level 1 of the same
+     * kind without needing its own entry.
+     */
+    private int mythicExp(EntityDeathEvent event, int vanillaExp) {
+        var hooks = plugin.hooks();
+        if (hooks == null) return vanillaExp;
+        var mythic = hooks.get(id.shadowyn.level.hooks.MythicMobsHook.class);
+        if (mythic == null) return vanillaExp;
+        String mobType = mythic.mobType(event.getEntity());
+        if (mobType == null) return vanillaExp;
+
+        int exp = vanillaExp;
+        String path = "exp-sources.mob-kill.mythic." + mobType;
+        if (!plugin.sourceIsSet(path)) path = "exp-sources.mob-kill.mythic." + mobType.toLowerCase(java.util.Locale.ROOT);
+        if (plugin.sourceIsSet(path)) exp = plugin.sourceInt(path, vanillaExp);
+
+        double perLevel = plugin.sourceDouble("exp-sources.mob-kill.mythic-exp-percent-per-level", 0.0);
+        if (perLevel > 0.0) {
+            double level = Math.max(1.0, mythic.mobLevel(event.getEntity()));
+            exp = (int) Math.round(exp * (1.0 + (level - 1.0) * perLevel / 100.0));
+        }
+        return Math.max(0, exp);
     }
 
     private void dropFragments(EntityDeathEvent event) {
@@ -443,12 +475,22 @@ public final class GrindListener implements Listener {
                 ? plugin.getConfig().getDouble("stats.alchemy.food-heal-efficiency-percent", 50.0) / 100.0
                 : 1.0;
         double extra = bonus <= 0 ? 0.0 : base * bonus / 100.0 * Math.max(0.0, sourceEfficiency);
-        if (bonus > 0 && event.getRegainReason() == EntityRegainHealthEvent.RegainReason.MAGIC) {
-            double maxHealthHealPer100 = plugin.getConfig().getDouble("stats.alchemy.max-health-heal-per-100-percent", 3.0);
-            extra += plugin.effectiveMaxHealth(profile) * (bonus / 100.0) * (Math.max(0.0, maxHealthHealPer100) / 100.0);
-            extra = Math.max(extra, plugin.getConfig().getDouble("clan-effects.alchemy-min-instant-bonus-health", 0.5));
+        if (bonus > 0) {
+            // Scaled off max health so a heal is worth the same share of the bar at any HP pool.
+            // Without this the bonus rides on Minecraft's own amounts — a single point of
+            // natural regen — and a maxed Alchemy build heals well under one heart on a
+            // thousand-HP character, which is no reward for the points spent.
+            double maxHealthHealPer100 = plugin.getConfig().getDouble("stats.alchemy.max-health-heal-per-100-percent", 4.0);
+            extra += plugin.effectiveMaxHealth(profile) * (bonus / 100.0)
+                    * (Math.max(0.0, maxHealthHealPer100) / 100.0) * Math.max(0.0, sourceEfficiency);
+            if (event.getRegainReason() == EntityRegainHealthEvent.RegainReason.MAGIC) {
+                extra = Math.max(extra, plugin.getConfig().getDouble("clan-effects.alchemy-min-instant-bonus-health", 0.5));
+            }
         }
-        event.setAmount(plugin.toPhysicalHealthAmount(player, base + extra));
+        // Only the bonus is converted: it was worked out in RPG health, while the amount
+        // Minecraft passed in is already in Minecraft's own scale. Converting both shrank
+        // the vanilla heal along with it.
+        event.setAmount(base + plugin.toPhysicalHealthAmount(player, extra));
         if (bonus > 0 && plugin.getConfig().getBoolean("clan-effects.alchemy-heal-visual", true)
                 && ready(player.getUniqueId(), "alchemy_heal_visual", plugin.getConfig().getLong("clan-effects.alchemy-heal-visual-cooldown-ms", 700))) {
             player.getWorld().spawnParticle(Particle.HEART, player.getLocation().add(0, 1.2, 0), 2, 0.35, 0.25, 0.35, 0.0);

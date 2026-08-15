@@ -29,23 +29,13 @@
   # Locks the heart bar to a fixed number of hearts.
   # Keep true so high HP never draws a long row of hearts on screen.
   # Set false only if another plugin already controls the heart display.
+  # Everything else about the bar (armor swaps, healing, fork quirks) is
+  # handled automatically. On non-Paper servers, installing the packetevents
+  # or ProtocolLib plugin gives the strongest fix; see hooks below.
   health-display-scaling: true
 
   # How many hearts the locked heart bar shows. 20 hearts = the vanilla row.
   health-display-hearts: 20.0
-
-  # How often the heart bar lock is re-applied, in ticks. 20 ticks = 1 second.
-  # Some forks, like UniverseSpigot, drop the lock after a hit and briefly show
-  # extra hearts. This repeating refresh puts the bar back.
-  # 0 = off. Raise this value if you want fewer refreshes.
-  health-display-refresh-ticks: 40
-
-  # How many ticks after an armor change the heart bar keeps being re-applied.
-  # Equipment is not synced to the client on the tick it changes, and the packet
-  # that carries it also carries the raw max health the heart bar is drawn from.
-  # Refreshing on every tick of this window means a correction always follows it,
-  # whichever tick it lands on. Raise this if equipping armor still flickers.
-  health-display-equipment-ticks: 10
 
   # How long a one-off actionbar notice holds the slot, in milliseconds.
   # The HP/EXP bar below refreshes every second, which is fast enough to wipe a
@@ -64,6 +54,44 @@ actionbar: true
 # Text shown in the actionbar. Colors support &#HEX.
 # Health here shows the full RPG HP, not the smaller Minecraft HP limit.
 actionbar-text: "&#FF3972❤ {health_formatted}&#6D7890/&#F7F3FF{max_health_formatted}      &#FFE7A3✦ {exp_formatted}&#6D7890/&#F7F3FF{needed_exp_formatted}"
+
+# Optional support for other plugins.
+# Each one is used only when that plugin is installed, so these can stay on.
+# OrbitSkills keeps its own stats and leveling either way; nothing here replaces them.
+# The packetevents and ProtocolLib plugins are also picked up automatically when
+# installed: they lock the heart bar at the packet level, which is the strongest
+# fix for Spigot forks that leak the raw heart count after armor swaps or hits.
+# Add "packetevents:" or "ProtocolLib:" with "enabled: false" here to opt out.
+hooks:
+  MythicMobs:
+    # false = treat MythicMobs mobs as normal mobs.
+    # EXP per custom mob is set in source/Grinding.yml under exp-sources.mob-kill.mythic.
+    enabled: true
+  MMOItems:
+    # false = judge MMOItems weapons by their material like any other item.
+    enabled: true
+    # Which stat an MMOItems weapon counts as when attacking.
+    # Left alone, a custom staff built on a stick would count as an empty hand
+    # and score as an unarmed Power hit instead of a weapon hit.
+    # Values: FIGHTING, ARCHERY, POWER. Names are MMOItems types.
+    # Types not listed fall back to the item's material.
+    weapon-stats:
+      SWORD: FIGHTING
+      DAGGER: FIGHTING
+      AXE: FIGHTING
+      BLUNT: FIGHTING
+      HAMMER: FIGHTING
+      SPEAR: FIGHTING
+      HALBERD: FIGHTING
+      KATANA: FIGHTING
+      LANCE: FIGHTING
+      WHIP: FIGHTING
+      BOW: ARCHERY
+      CROSSBOW: ARCHERY
+      MUSKET: ARCHERY
+      STAFF: POWER
+      WAND: POWER
+      GAUNTLET: POWER
 
 modules:
   # Turn systems on or off for the whole server.
@@ -138,7 +166,11 @@ stats:
     soft-cap-percent: 100.0
     overflow-efficiency-percent: 12.0
     max-bonus-percent: 10000.0
-    max-health-heal-per-100-percent: 0.45
+    # Healing scaled off max health, per 100% Alchemy.
+    # 4.0 = at 100% Alchemy a heal restores an extra 4% of max health, so the
+    # reward is the same share of the bar whether the player has 100 HP or 4000.
+    # Applies to potions and to food regen; food is scaled by the value below.
+    max-health-heal-per-100-percent: 4.0
     food-heal-efficiency-percent: 50.0
     low-health-regen-tier-1-percent: 40.0
     low-health-regen-tier-2-percent: 65.0

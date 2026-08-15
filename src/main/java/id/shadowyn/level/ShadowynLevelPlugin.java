@@ -6,7 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
+import org.bukkit.inventory.EquipmentSlotGroup;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.LivingEntity;
@@ -32,14 +35,19 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
             "menu/Points.yml"
     };
     private final java.util.Set<java.util.UUID> pendingHealthDisplay = java.util.concurrent.ConcurrentHashMap.newKeySet();
-    private final java.util.Set<java.util.UUID> pendingEquipmentDisplay = java.util.concurrent.ConcurrentHashMap.newKeySet();
+    private volatile Boolean paperBasedServer;
     private final java.util.Map<java.util.UUID, Long> actionbarHold = new java.util.concurrent.ConcurrentHashMap<>();
-    private final java.util.Map<java.util.UUID, Integer> equipmentRefreshCount = new java.util.concurrent.ConcurrentHashMap<>();
+    /** Fixed identity so a modifier from an earlier session is found and replaced, never stacked. */
+    private static final String HEALTH_MODIFIER_NAME = "orbitskills_health";
+    private static final java.util.UUID HEALTH_MODIFIER_ID = java.util.UUID.fromString("2f9a1c47-6b3e-4d18-9f52-0a7c3e5d8b41");
+    /** Below this, a stat change is not worth a packet the client could read as a hit. */
+    private static final double HEALTH_MODIFIER_EPSILON = 0.1;
     private PlayerDataStore data;
     private LevelService levels;
     private ClanService clans;
     private FragmentService fragments;
     private MenuService menus;
+    private id.shadowyn.level.hooks.HookManager hooks;
     private String prefix;
     private FileConfiguration levelConfig;
     private FileConfiguration langConfig;
@@ -176,6 +184,8 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
                     .sorted(String.CASE_INSENSITIVE_ORDER)
                     .toList();
         });
+        hooks = new id.shadowyn.level.hooks.HookManager(this);
+        hooks.registerAll();
         Bukkit.getPluginManager().registerEvents(new GrindListener(this), this);
         Bukkit.getPluginManager().registerEvents(menus, this);
         registerArmorDisplayListener();
@@ -200,6 +210,7 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
 
     public PlayerDataStore data() { return data; }
     public LevelService levels() { return levels; }
+    public id.shadowyn.level.hooks.HookManager hooks() { return hooks; }
     public ClanService clans() { return clans; }
     public FragmentService fragments() { return fragments; }
     public MenuService menus() { return menus; }
@@ -218,10 +229,14 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
      */
     private void registerArmorDisplayListener() {
         try {
+            Class.forName("com.destroystokyo.paper.event.player.PlayerArmorChangeEvent");
             Bukkit.getPluginManager().registerEvents(new ArmorDisplayListener(this), this);
         } catch (Throwable ignored) {
-            getLogger().info("Armor heart-bar refresh unavailable on this server software; "
-                    + "the repeating refresh still keeps the heart bar correct.");
+            // No Paper armor event on this server: fall back to the Bukkit-only paths
+            // (inventory clicks, right-click equips, dispensers) so armor swaps still
+            // resync the heart bar immediately instead of waiting for the sweep.
+            Bukkit.getPluginManager().registerEvents(new LegacyArmorDisplayListener(this), this);
+            getLogger().info("Paper armor event unavailable; using Bukkit fallback for the heart-bar refresh.");
         }
     }
 
@@ -275,7 +290,7 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
 
     public void loadConfigDefaults() {
         boolean changed = false;
-        int bundledBalanceVersion = 51;
+        int bundledBalanceVersion = 52;
         if (getConfig().getInt("settings.balance-version", 1) < bundledBalanceVersion) {
             changed |= updateOldDouble("stats.health.health-per-point", 0.11, 0.0588);
             changed |= updateOldDouble("stats.health.flat-effective-cap", 900.0, 980.0);
@@ -291,6 +306,9 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
             changed |= updateOldDouble("stats.defense.health-per-point", 0.01, 0.1);
             changed |= updateOldDouble("stats.health.health-per-point", 0.0588, 0.588);
         }
+        // The old value healed 0.45% of max health per 100% Alchemy, which a maxed build
+        // could not feel. Only the untouched default is raised; a customised value stays.
+        changed |= updateOldDouble("stats.alchemy.max-health-heal-per-100-percent", 0.45, 4.0);
         if (getConfig().getInt("settings.balance-version", 1) < bundledBalanceVersion) {
             getConfig().set("settings.balance-version", bundledBalanceVersion);
             changed = true;
@@ -561,23 +579,7 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
 
     public void applyStats(Player player) {
         PlayerProfile profile = data.get(player);
-        double maxHealth = physicalMaxHealth(profile);
-        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
-        if (attr != null) {
-            double oldMaxHealth = attr.getValue();
-            double healthPercent = player.getHealth() / Math.max(1.0, oldMaxHealth);
-            try {
-                attr.setBaseValue(maxHealth);
-            } catch (IllegalArgumentException ex) {
-                maxHealth = Math.min(maxHealth, 1024.0);
-                attr.setBaseValue(maxHealth);
-            }
-            if (player.getHealth() > attr.getValue()) {
-                player.setHealth(attr.getValue());
-            } else if (maxHealth > oldMaxHealth && healthPercent >= 0.99) {
-                player.setHealth(attr.getValue());
-            }
-        }
+        applyMaxHealth(player, profile);
         refreshHealthDisplay(player);
         if (racesEnabled() && raceConfig().getBoolean("clans." + profile.race() + ".water-breathing", getConfig().getBoolean("clans." + profile.race() + ".water-breathing", false))) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 20 * 60 * 60, 0, true, false));
@@ -591,8 +593,96 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
         }
     }
 
+    /**
+     * Applies this plugin's share of max health as a named attribute modifier.
+     *
+     * <p>The previous approach wrote {@code setBaseValue} on every call. That overwrote
+     * whatever other plugins had contributed, and — because it ran unconditionally — it
+     * rewrote the attribute even when the value had not changed. Each rewrite is a
+     * client-visible max-health change, and a client that sees max health move while
+     * current health stays put renders the difference as a hit. That is the phantom
+     * damage on armor swaps, healing, and eating, and why it fired in creative too.
+     *
+     * <p>So the value is contributed as an additive modifier under a fixed key, and the
+     * modifier is only replaced when the amount actually differs. An unchanged stat costs
+     * nothing and sends nothing. The base value is left alone, which also means armor and
+     * other plugins keep their own contributions.
+     */
+    private void applyMaxHealth(Player player, PlayerProfile profile) {
+        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        if (attr == null) return;
+        // Our share is everything above the vanilla 20; the rest stays the server's own.
+        double bonus = Math.max(0.0, physicalMaxHealth(profile) - 20.0);
+        double oldMax = attr.getValue();
+
+        AttributeModifier existing = null;
+        for (AttributeModifier modifier : attr.getModifiers()) {
+            if (isOwnHealthModifier(modifier)) {
+                existing = modifier;
+                break;
+            }
+        }
+        if (existing != null && Math.abs(existing.getAmount() - bonus) <= HEALTH_MODIFIER_EPSILON) {
+            return;
+        }
+        if (existing != null) attr.removeModifier(existing);
+        if (bonus > 0.0) {
+            try {
+                attr.addModifier(new AttributeModifier(healthModifierKey(), bonus, AttributeModifier.Operation.ADD_NUMBER, EquipmentSlotGroup.ANY));
+            } catch (IllegalArgumentException | NoSuchMethodError ex) {
+                attr.addModifier(new AttributeModifier(HEALTH_MODIFIER_ID, HEALTH_MODIFIER_NAME, bonus, AttributeModifier.Operation.ADD_NUMBER));
+            }
+        }
+
+        double newMax = attr.getValue();
+        if (player.getHealth() > newMax) {
+            player.setHealth(newMax);
+        } else if (Math.abs(newMax - oldMax) > HEALTH_MODIFIER_EPSILON && oldMax > 0.0
+                && getConfig().getBoolean("settings.health-display-keep-ratio", true)) {
+            // Raising max health alone lowers the fraction a scaled bar draws, and the
+            // client reads any fall as a hit. Holding the ratio keeps the bar where it was.
+            player.setHealth(Math.max(0.5, Math.min(newMax, player.getHealth() / oldMax * newMax)));
+        }
+    }
+
+    private NamespacedKey healthModifierKey() {
+        return new NamespacedKey(this, HEALTH_MODIFIER_NAME);
+    }
+
+    /**
+     * Recognises our modifier across the 1.21 key migration and the legacy UUID form, so a
+     * modifier left by an older build is replaced rather than stacked on top of.
+     */
+    private boolean isOwnHealthModifier(AttributeModifier modifier) {
+        if (HEALTH_MODIFIER_NAME.equals(modifier.getName())) return true;
+        try {
+            NamespacedKey key = modifier.getKey();
+            return key != null
+                    && (getName().toLowerCase(java.util.Locale.ROOT).equals(key.getNamespace()) || "minecraft".equals(key.getNamespace()))
+                    && (HEALTH_MODIFIER_NAME.equals(key.getKey()) || HEALTH_MODIFIER_ID.toString().equals(key.getKey()));
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
     public boolean healthDisplayScalingEnabled() {
         return getConfig().getBoolean("settings.health-display-scaling", true);
+    }
+
+    /**
+     * Whether a packet-level heart bar (packetevents or ProtocolLib hook) is live.
+     *
+     * <p>When it is, Bukkit's own health scaling must stay OFF. Two engines writing the
+     * same bar is exactly the fight the phantom hits came from: the fork's scaling code
+     * recomputes the bar from values it reads mid-change and sends its own packets, which
+     * race the rewritten ones. With scaling off the server only ever emits raw health,
+     * and the packet hook is the single place that converts it for the client.
+     */
+    public boolean packetHeartBarActive() {
+        var manager = hooks;
+        return manager != null
+                && (manager.isRegistered(id.shadowyn.level.hooks.PacketEventsHook.class)
+                        || manager.isRegistered(id.shadowyn.level.hooks.ProtocolLibHook.class));
     }
 
     public double healthDisplayHearts() {
@@ -601,30 +691,70 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
     }
 
     /**
-     * Locks the heart bar to a fixed number of hearts and resyncs it to the client.
+     * Locks the heart bar to a fixed number of hearts.
      *
-     * <p>The number of hearts drawn comes from the max-health attribute the client holds,
-     * not from the health value. While scaling is on, the server substitutes the heart
-     * scale for the real maximum in that attribute; when a fork sends the raw maximum
-     * instead, the client stretches the bar to one heart per two real HP. Every symptom
-     * follows from that single leak — the long row of hearts, and the phantom hit when
-     * the corrected packet reports health far below what the stretched bar was showing,
-     * which is why healing and eating can look like damage.
+     * <p>The client plays the hurt flash and sound whenever a health packet reports less
+     * health than it is already showing — it does not check whether any damage occurred.
+     * That is why the effect fires in creative, where the player cannot be hurt at all:
+     * the only thing sending those packets is this plugin. Anything that briefly changes
+     * the ratio behind {@code health / maxHealth * scale} — armor attribute modifiers
+     * going on or off, a resend arriving mid-change — lands as a dip, and the dip reads
+     * as a hit.
      *
-     * <p>So the scale is rewritten unconditionally rather than only when it differs:
-     * rewriting it is what re-sends the substituted attribute, and skipping that because
-     * the server-side value already looked correct is exactly how the client is left
-     * holding the raw one. {@code sendHealthUpdate} runs first to settle food and
-     * saturation, leaving the scaled packet as the last word.
+     * <p>So this sends exactly one packet and no more. {@code setHealthScale} already
+     * implies {@code setHealthScaled(true)} and resends the bar by itself; the
+     * {@code sendHealthUpdate} that used to run alongside it was a second, independent
+     * health packet, and the extra packet was the hit. Nothing here is conditional: a
+     * scale the server still considers correct is exactly the case where the client has
+     * lost it, so skipping the write is what leaves the raw maximum on screen.
      */
     public void refreshHealthDisplay(Player player) {
         if (player == null || !player.isOnline()) return;
-        if (!healthDisplayScalingEnabled()) {
+        if (!healthDisplayScalingEnabled() || packetHeartBarActive()) {
+            // With a packet hook live, Bukkit scaling must be off — see
+            // packetHeartBarActive(). Turning it off also resends raw health once,
+            // which the hook immediately rewrites, so the bar never blinks.
             if (player.isHealthScaled()) player.setHealthScaled(false);
             return;
         }
-        player.sendHealthUpdate();
         player.setHealthScale(healthDisplayHearts());
+    }
+
+    /**
+     * Whether the periodic sweep should resend the bar without asking the server first.
+     *
+     * <p>{@code isHealthScaled()} and {@code getHealthScale()} read a server-side field
+     * that is written once and never dropped, so they cannot see the client losing the
+     * bar — which is exactly how Spigot-based forks break it: they resend raw health to
+     * the client and the server-side flag stays "correct" forever. On those servers the
+     * conditional sweep never fires and the broken bar stays until relog. Paper and its
+     * forks (Purpur, Leaf) keep the client in sync themselves, so the cheap conditional
+     * sweep is enough there and forcing would only add packets that can land mid-change.
+     */
+    private boolean healthDisplayForceRefresh() {
+        String mode = getConfig().getString("settings.health-display-force-refresh", "auto");
+        if (mode == null) mode = "auto";
+        if (mode.equalsIgnoreCase("true") || mode.equalsIgnoreCase("always")) return true;
+        if (mode.equalsIgnoreCase("false") || mode.equalsIgnoreCase("off")) return false;
+        return !isPaperBasedServer();
+    }
+
+    /**
+     * Detects Paper and its descendants by probing for a Paper-only API method rather
+     * than parsing the server brand string, which forks rename freely.
+     */
+    private boolean isPaperBasedServer() {
+        Boolean cached = paperBasedServer;
+        if (cached != null) return cached;
+        boolean found;
+        try {
+            Player.class.getMethod("sendHealthUpdate");
+            found = true;
+        } catch (NoSuchMethodException ex) {
+            found = false;
+        }
+        paperBasedServer = found;
+        return found;
     }
 
     /**
@@ -648,48 +778,72 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
     }
 
     /**
-     * How many ticks after an equipment change the heart bar keeps being re-applied.
+     * Re-applies the heart bar after an equipment change.
      *
-     * <p>A single delayed refresh was tried first and did not hold, so this covers every
-     * tick in the window instead of betting on one. That also makes the result readable:
-     * if the bar still breaks with the whole window covered, the late packet is not
-     * simply arriving after the refresh, and the cause is the path it takes rather than
-     * its timing.
+     * <p>This deliberately refreshes once, on the next tick, rather than repeatedly across
+     * the following ticks. Each refresh is a packet, and a packet that reports less health
+     * than the client is drawing produces the hurt flash on its own — so sweeping a whole
+     * window of ticks turned one badly-timed packet into ten chances to fire the effect.
+     * Armor is not special enough to need more than the single correction every other
+     * caller gets.
      */
-    public int healthDisplayEquipmentTicks() {
-        return Math.max(1, Math.min(60, getConfig().getInt("settings.health-display-equipment-ticks", 10)));
+    public void scheduleHealthDisplayRefreshAfterEquipment(Player player) {
+        if (player == null || !healthDisplayScalingEnabled()) {
+            scheduleHealthDisplayRefresh(player);
+            return;
+        }
+        double maxBefore = maxHealthValue(player);
+        double healthBefore = player.getHealth();
+        java.util.UUID uuid = player.getUniqueId();
+        if (!pendingHealthDisplay.add(uuid)) return;
+        Bukkit.getScheduler().runTask(this, () -> {
+            pendingHealthDisplay.remove(uuid);
+            Player online = Bukkit.getPlayer(uuid);
+            if (online == null || !online.isOnline() || online.isDead()) return;
+            keepHealthRatio(online, healthBefore, maxBefore);
+            refreshHealthDisplay(online);
+        });
+        // Spigot-based forks apply the armor's attribute modifiers and resend raw
+        // health on their own schedule, which can land after the tick-one resync and
+        // wipe it — that is the visible flip between the raw and the fixed bar. One
+        // late follow-up out-waits that resend. Paper applies attributes in-tick, so
+        // there the extra packet would only be another chance to flash the hurt effect.
+        if (!isPaperBasedServer()) {
+            Bukkit.getScheduler().runTaskLater(this, () -> {
+                Player online = Bukkit.getPlayer(uuid);
+                if (online != null && online.isOnline() && !online.isDead()) refreshHealthDisplay(online);
+            }, 3L);
+        }
     }
 
     /**
-     * Re-applies the heart bar on each of the next several ticks after an equipment change.
+     * Keeps the heart bar still when a piece of armor changes max health.
      *
-     * <p>Equipment is not synced to the client on the tick it changes, and the packet that
-     * eventually carries it also carries the raw max-health attribute the heart bar is
-     * drawn from. Repeating across the window means whichever tick that packet lands on,
-     * a correction follows it. The repeat is per player and self-cancelling, so a burst of
-     * armor events collapses into one pass.
+     * <p>A scaled bar draws {@code health / maxHealth * scale}. Armor that carries a max
+     * health modifier raises the denominator and leaves the numerator alone, so the number
+     * the client is told to draw falls even though nothing hurt the player — and a falling
+     * health value is the one and only thing the client needs to play the hurt flash. No
+     * damage is involved, which is why it fired in creative.
+     *
+     * <p>Holding the ratio steady keeps the drawn value identical across the swap, so there
+     * is no fall to react to. Health is only touched when max health actually moved and
+     * nothing else changed health in the same tick; real damage landing at the same moment
+     * is left alone to resolve normally.
      */
-    public void scheduleHealthDisplayRefreshAfterEquipment(Player player) {
-        if (player == null || !healthDisplayScalingEnabled()) return;
-        scheduleHealthDisplayRefresh(player);
-        java.util.UUID uuid = player.getUniqueId();
-        if (!pendingEquipmentDisplay.add(uuid)) return;
-        int total = healthDisplayEquipmentTicks();
-        Bukkit.getScheduler().runTaskTimer(this, task -> {
-            Player online = Bukkit.getPlayer(uuid);
-            if (online == null || !online.isOnline()) {
-                pendingEquipmentDisplay.remove(uuid);
-                task.cancel();
-                return;
-            }
-            if (!online.isDead()) refreshHealthDisplay(online);
-            int done = equipmentRefreshCount.merge(uuid, 1, (a, b) -> a + b);
-            if (done >= total) {
-                equipmentRefreshCount.remove(uuid);
-                pendingEquipmentDisplay.remove(uuid);
-                task.cancel();
-            }
-        }, 1L, 1L);
+    private void keepHealthRatio(Player player, double healthBefore, double maxBefore) {
+        if (!getConfig().getBoolean("settings.health-display-keep-ratio", true)) return;
+        if (maxBefore <= 0.0) return;
+        double maxAfter = maxHealthValue(player);
+        if (Math.abs(maxAfter - maxBefore) <= HEALTH_MODIFIER_EPSILON) return;
+        if (Math.abs(player.getHealth() - healthBefore) > 0.01) return;
+        double target = Math.max(0.5, Math.min(maxAfter, healthBefore / maxBefore * maxAfter));
+        if (Math.abs(target - player.getHealth()) <= 0.01) return;
+        player.setHealth(target);
+    }
+
+    private double maxHealthValue(Player player) {
+        var attr = player.getAttribute(Attribute.GENERIC_MAX_HEALTH);
+        return attr == null ? 0.0 : attr.getValue();
     }
 
     public double physicalMaxHealth(PlayerProfile profile) {
@@ -858,7 +1012,33 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
         if (projectile) return StatType.ARCHERY;
         ItemStack hand = player.getInventory().getItemInMainHand();
         Material material = hand == null ? Material.AIR : hand.getType();
+        StatType custom = customWeaponStat(hand);
+        if (custom != null) return custom;
         return isMeleeWeapon(material) ? StatType.FIGHTING : StatType.POWER;
+    }
+
+    /**
+     * Classifies an MMOItems weapon by the type its author gave it rather than by material.
+     *
+     * <p>Without this, a custom staff or dagger built on a stick reads as an empty hand and
+     * scores as an unarmed Power hit. Asking MMOItems what kind of weapon it is keeps the
+     * player's stat choice meaningful. Returns {@code null} for anything MMOItems does not
+     * claim, which leaves the vanilla material check in charge.
+     */
+    private StatType customWeaponStat(ItemStack hand) {
+        if (hooks == null || hand == null) return null;
+        var mmoItems = hooks.get(id.shadowyn.level.hooks.MmoItemsHook.class);
+        if (mmoItems == null) return null;
+        String type = mmoItems.itemType(hand);
+        if (type == null) return null;
+        String mapped = getConfig().getString("hooks.MMOItems.weapon-stats." + type.toUpperCase(Locale.ROOT));
+        if (mapped == null) return null;
+        try {
+            return StatType.valueOf(mapped.toUpperCase(Locale.ROOT));
+        } catch (IllegalArgumentException ignored) {
+            getLogger().warning("Unknown stat '" + mapped + "' in hooks.MMOItems.weapon-stats." + type + ".");
+            return null;
+        }
     }
 
     private boolean isMeleeWeapon(Material material) {
@@ -877,10 +1057,22 @@ public final class ShadowynLevelPlugin extends JavaPlugin {
         return getConfig().getBoolean("actionbar", true);
     }
 
+    /**
+     * Periodic safety net. On Paper-based servers it skips anyone whose bar the server
+     * already reports as locked — re-sending a correct scale is a packet that can land
+     * mid-change and flash the hurt effect. On Spigot-based forks that server-side
+     * report is meaningless (see {@link #healthDisplayForceRefresh()}), so the sweep
+     * resends unconditionally there; a lost bar the server cannot see is worse than
+     * the occasional redundant packet.
+     */
     private void refreshHealthDisplays() {
         if (!healthDisplayScalingEnabled()) return;
+        boolean force = healthDisplayForceRefresh();
+        double hearts = healthDisplayHearts();
         for (Player player : Bukkit.getOnlinePlayers()) {
-            if (!player.isDead()) refreshHealthDisplay(player);
+            if (player.isDead()) continue;
+            if (!force && player.isHealthScaled() && Math.abs(player.getHealthScale() - hearts) < 0.001) continue;
+            refreshHealthDisplay(player);
         }
     }
 

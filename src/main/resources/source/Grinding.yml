@@ -14,6 +14,22 @@ exp-sources:
     passive-default: 1
     # EXP for mobs named/tagged as boss.
     bosses: 50
+
+    # EXP for MythicMobs mobs, listed by their internal name.
+    # Without an entry here a custom mob is worth whatever its base entity is
+    # worth, so a scripted boss built on a zombie pays out like a zombie.
+    # Needs MythicMobs installed. Ignored otherwise.
+    # Add entries in the same shape as the mob list further down, for example:
+    #   mythic:
+    #     SkeletalKnight: 120
+    #     InfernalWarlord: 400
+    mythic: {}
+
+    # Extra EXP per MythicMobs level, in percent, applied on top of the value above.
+    # 2.5 means a level 40 mob gives about twice a level 1 mob of the same kind.
+    # 0 = off, every level of a mob is worth the same.
+    mythic-exp-percent-per-level: 0.0
+
     # EXP can be different for each mob.
     types:
       # Overworld hostile mobs and biome variants.
